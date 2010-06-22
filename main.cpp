@@ -1,5 +1,7 @@
 
 
+#include <avr/io.h>
+#include "config.h"
 
 void setup()
 {
