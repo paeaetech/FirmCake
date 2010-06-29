@@ -56,7 +56,7 @@ ARDUINO_INSTALL = /Applications/Arduino.app/Contents/Resources/Java/hardware/
 
 #### below here should be OK.
 TARGET = main
-SOURCE = main.cpp
+SOURCE = main.cpp eeprom.cpp
 
 
 LIBRARIES :=
@@ -64,19 +64,19 @@ LIBRARIES :=
 
 #### below here should really be OK.
 ARDUINO = $(ARDUINO_INSTALL)/arduino/cores/arduino
-SRC = $(ARDUINO)/pins_arduino.c $(ARDUINO)/wiring.c $(ARDUINO)/WInterrupts.c $(ARDUINO)/wiring_analog.c $(ARDUINO)/wiring_digital.c \
-$(ARDUINO)/wiring_pulse.c \
-$(ARDUINO)/wiring_shift.c 
+ARDUINO_SRC = $(ARDUINO)/pins_arduino.c $(ARDUINO)/wiring.c $(ARDUINO)/WInterrupts.c $(ARDUINO)/wiring_analog.c $(ARDUINO)/wiring_digital.c \
+ $(ARDUINO)/wiring_pulse.c \
+ $(ARDUINO)/wiring_shift.c 
+ARDUINO_CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/Print.cpp $(ARDUINO)/WMath.cpp
 
-CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/Print.cpp $(ARDUINO)/WMath.cpp $(TARGET).cpp $(SOURCE)
-MCU = atmega328p
+
+CXXSRC = $(SOURCE)
+
+MCU = atmega1280
 F_CPU = 16000000
 FORMAT = ihex
 UPLOAD_RATE = 57600
 
-#ASRC = femtoos_startup.s
-
-#SRC += femtoos_core.c femtoos_port.c femtoos_shared.c
 # Name of this Makefile (used for "make depend").
 MAKEFILE = Makefile
 
@@ -95,14 +95,14 @@ CXXDEFS = -DF_CPU=$(F_CPU)
 ARDUINOINC = $(ARDUINO_INSTALL)/../libraries
 
 EXCLUDE := examples .svn
-LXX := $(foreach i,$(LIBRARIES),$(shell find $(ARDUINOINC)/$(i) -iname "*.cpp" ! -iregex ".*examples.*"))
-LXX += $(foreach i,$(LIBRARIES),$(shell find $(ARDUINOINC)/$(i) -iname "*.c" ! -iregex ".*examples.*"))
+#LXX := $(foreach i,$(LIBRARIES),$(shell find $(ARDUINOINC)/$(i) -iname "*.cpp" ! -iregex ".*examples.*"))
+#LXX += $(foreach i,$(LIBRARIES),$(shell find $(ARDUINOINC)/$(i) -iname "*.c" ! -iregex ".*examples.*"))
 
 LIB = $(patsubst %.cpp,%.o,$(LXX))
 LIB :=  $(patsubst %.c,%.o,$(LIB))
 
-LIBINC := $(addprefix -I,$(filter-out $(EXCLUDE),$(shell find $(ARDUINOINC) -type d  ! -iregex ".*examples.*" ! -iregex ".*\.svn.*" ! -iregex ".*Ethernet[^2].*" )))
-CINCS = -I$(ARDUINO) -I$(ARDUINOINC) $(LIBINC) -IFemtoOS_0.88/MainCode/femtoos_headers
+#LIBINC := $(addprefix -I,$(filter-out $(EXCLUDE),$(shell find $(ARDUINOINC) -type d  ! -iregex ".*examples.*" ! -iregex ".*\.svn.*" ! -iregex ".*Ethernet[^2].*" )))
+CINCS = -I$(ARDUINO) -I$(ARDUINOINC) $(LIBINC)
 CXXINCS = -I$(ARDUINO) -I$(ARDUINOINC) $(LIBINC)
 
 	
@@ -268,338 +268,16 @@ depend:
 
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean depend
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-HardwareSerial.o:  \
- /Applications/arduino-0014/hardware/cores/arduino/HardwareSerial.cpp \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdio.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stdarg.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/string.h \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/cores/arduino/binary.h \
-  /Applications/arduino-0014/hardware/cores/arduino/HardwareSerial.h \
-  /Applications/arduino-0014/hardware/cores/arduino/Print.h
-Print.o: /Applications/arduino-0014/hardware/cores/arduino/Print.cpp \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdio.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stdarg.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/string.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/math.h \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/cores/arduino/binary.h \
-  /Applications/arduino-0014/hardware/cores/arduino/Print.h
-WMath.o: /Applications/arduino-0014/hardware/cores/arduino/WMath.cpp \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdlib.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h
-matrix.o: matrix.cpp femtoos_core.h femtoos_port.h femtoos_globals.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/pgmspace.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/string.h \
-  femtoos_constants.h femtoos_device.h femtoos_ATmega328P.asm \
-  config_application.h femtoos_check.h \
-  /Applications/arduino-0014/hardware/cores/arduino/WProgram.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdlib.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/math.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/interrupt.h \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring.h \
-  /Applications/arduino-0014/hardware/cores/arduino/binary.h \
-  /Applications/arduino-0014/hardware/cores/arduino/HardwareSerial.h \
-  /Applications/arduino-0014/hardware/cores/arduino/Print.h \
-  /Applications/arduino-0014/hardware/cores/arduino/HardwareSerial.h \
-  htc595.h
-htc595.o: htc595.cpp \
-  /Applications/arduino-0014/hardware/cores/arduino/WProgram.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdlib.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/string.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/math.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/interrupt.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring.h \
-  /Applications/arduino-0014/hardware/cores/arduino/binary.h \
-  /Applications/arduino-0014/hardware/cores/arduino/HardwareSerial.h \
-  /Applications/arduino-0014/hardware/cores/arduino/Print.h htc595.h \
-  femtoos_core.h femtoos_port.h femtoos_globals.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/pgmspace.h \
-  femtoos_constants.h femtoos_device.h femtoos_ATmega328P.asm \
-  config_application.h femtoos_check.h
-ledscreen.o: ledscreen.cpp ledscreen.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  htc595.h
-pins_arduino.o:  \
- /Applications/arduino-0014/hardware/cores/arduino/pins_arduino.c \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring_private.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/interrupt.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay_basic.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdio.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stdarg.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring.h \
-  /Applications/arduino-0014/hardware/cores/arduino/binary.h \
-  /Applications/arduino-0014/hardware/cores/arduino/pins_arduino.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/pgmspace.h
-wiring.o: /Applications/arduino-0014/hardware/cores/arduino/wiring.c \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring_private.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/interrupt.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay_basic.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdio.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stdarg.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring.h \
-  /Applications/arduino-0014/hardware/cores/arduino/binary.h
-WInterrupts.o:  \
- /Applications/arduino-0014/hardware/cores/arduino/WInterrupts.c \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/interrupt.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/pgmspace.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdio.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stdarg.h \
-  /Applications/arduino-0014/hardware/cores/arduino/WConstants.h \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring.h \
-  /Applications/arduino-0014/hardware/cores/arduino/binary.h \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring_private.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay_basic.h
-wiring_analog.o:  \
- /Applications/arduino-0014/hardware/cores/arduino/wiring_analog.c \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring_private.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/interrupt.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay_basic.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdio.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stdarg.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring.h \
-  /Applications/arduino-0014/hardware/cores/arduino/binary.h \
-  /Applications/arduino-0014/hardware/cores/arduino/pins_arduino.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/pgmspace.h
-wiring_digital.o:  \
- /Applications/arduino-0014/hardware/cores/arduino/wiring_digital.c \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring_private.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/interrupt.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay_basic.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdio.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stdarg.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring.h \
-  /Applications/arduino-0014/hardware/cores/arduino/binary.h \
-  /Applications/arduino-0014/hardware/cores/arduino/pins_arduino.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/pgmspace.h
-wiring_pulse.o:  \
- /Applications/arduino-0014/hardware/cores/arduino/wiring_pulse.c \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring_private.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/interrupt.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay_basic.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdio.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stdarg.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring.h \
-  /Applications/arduino-0014/hardware/cores/arduino/binary.h \
-  /Applications/arduino-0014/hardware/cores/arduino/pins_arduino.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/pgmspace.h
-wiring_serial.o:  \
- /Applications/arduino-0014/hardware/cores/arduino/wiring_serial.c \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring_private.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/interrupt.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay_basic.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdio.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stdarg.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring.h \
-  /Applications/arduino-0014/hardware/cores/arduino/binary.h
-wiring_shift.o:  \
- /Applications/arduino-0014/hardware/cores/arduino/wiring_shift.c \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring_private.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/interrupt.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/delay_basic.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdio.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stdarg.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/cores/arduino/wiring.h \
-  /Applications/arduino-0014/hardware/cores/arduino/binary.h
-femtoos_core.o: femtoos_core.c femtoos_core.h femtoos_port.h \
-  femtoos_globals.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/pgmspace.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/string.h \
-  femtoos_constants.h femtoos_device.h femtoos_ATmega328P.asm \
-  config_application.h femtoos_check.h femtoos_shared.h femtoos_types.h \
-  femtoos_order.h femtoos_locals.h
-femtoos_port.o: femtoos_port.c femtoos_core.h femtoos_port.h \
-  femtoos_globals.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/pgmspace.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/string.h \
-  femtoos_constants.h femtoos_device.h femtoos_ATmega328P.asm \
-  config_application.h femtoos_check.h femtoos_shared.h femtoos_types.h \
-  femtoos_order.h femtoos_locals.h
-femtoos_shared.o: femtoos_shared.c femtoos_shared.h femtoos_types.h \
-  femtoos_globals.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom328p.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/pgmspace.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/string.h \
-  femtoos_constants.h femtoos_device.h femtoos_ATmega328P.asm \
-  config_application.h femtoos_check.h femtoos_order.h femtoos_locals.h
+main.o: main.cpp \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom1280.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iomxx0_1.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
+  config.h version.h
