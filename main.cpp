@@ -10,7 +10,6 @@
 #include "rs485.h"
 
 
-void operator delete(void*) {}
 
 
 void setup()

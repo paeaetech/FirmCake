@@ -10,7 +10,6 @@ class UART
 {
 public:
 	UART(uint8_t uartNum,uint16_t baud);
-	virtual ~UART() {}
 	
 	uint8_t available();
 	uint8_t receive();

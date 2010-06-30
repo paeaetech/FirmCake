@@ -8,7 +8,6 @@ class RS485 : public UART
 {
 public:
 	RS485(uint8_t uartNum,uint16_t baudRate);
-	~RS485() {}
 	
 	virtual void send(const uint8_t* buf,uint8_t size);
 private:
