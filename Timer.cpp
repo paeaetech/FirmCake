@@ -78,7 +78,7 @@ void Timer::setupPrescalerAndTCNT()
 void Timer::doISR()
 {
 	if (mpCB)
-		mpCB();
+		mpCB(mpUserdata);
 		
 	mpIO->TCNTH = mTCNT>>8;
 	mpIO->TCNTL = mTCNT;

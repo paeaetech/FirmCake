@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-typedef void (*TimerCallback)();
+typedef void (*TimerCallback)(void*);
 
 
 struct TimerIOMap {

@@ -10,11 +10,18 @@ public:
 
 	void enable() { setEnabled(true); }
 	void disable() { setEnabled(false); }
-
+	void reset() { mCurrentStep = 0; mTargetStep = 0; mDeltaSteps = 0; }
+	
+	uint32_t getCurrentStep() const { return mCurrentStep; }
+	void setCurrentStep(uint32_t step) { mCurrentStep = step; }
+	uint32_t getTargetStep() const { return mTargetStep; }
+	void setTargetStep(uint32_t step); 
 	
 	void setDirectionPositive(bool v);
 	void setInverted(bool v) { mbInverted = v; }
 	void setEnabled(bool v);
+	
+	bool needStepping() { return mCurrentStep != mTargetStep; }
 	
 	void doISR();
 	
@@ -28,6 +35,13 @@ protected:
 	bool mbInverted;
 	bool mbDirectionPositive;
 	
+	uint32_t mCurrentStep;
+	uint32_t mTargetStep;
+	int32_t mDeltaSteps;
+
+	void doStep();
+
+
 };
 
 
