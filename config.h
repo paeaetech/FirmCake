@@ -1,6 +1,8 @@
 #ifndef CONFIG_H_5N8HUBME
 #define CONFIG_H_5N8HUBME
 
+#include <avr/io.h>
+
 
 //generic definitions
 #define STEPPER_TYPE_GEN3 0
@@ -20,10 +22,12 @@
 
 
 #ifdef USE_RS485
-#define RS485_PORT_IE
-#define RS485_PORT_IE
-#define RS485_PIN_IE
-#define RS485_PIN_OE
+#define RS485_PORT_IE PORTD
+#define RS485_PORT_OE PORTD
+#define RS485_PIN_IE PD0
+#define RS485_PIN_OE PD1
+#define RS485_UART 1
+#define RS485_BAUDRATE 19200
 #endif
 
 #ifdef USE_EXTRUDER

@@ -3,6 +3,7 @@
 
 
 #include <inttypes.h>
+#include <avr/io.h>
 
 #define PORT(x) (x)
 #define PIN(x) *((volatile uint8_t*)((&x)+1))

@@ -10,12 +10,12 @@ class UART
 {
 public:
 	UART(uint8_t uartNum,uint16_t baud);
-	~UART() {}
+	virtual ~UART() {}
 	
 	uint8_t available();
 	uint8_t receive();
-	void send(uint8_t b);
-	void send(uint8_t* buf,uint8_t size);
+	virtual void send(uint8_t b);
+	virtual void send(const uint8_t* buf,uint8_t size);
 
 	void isrCallback();
 private:

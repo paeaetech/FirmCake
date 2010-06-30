@@ -101,7 +101,7 @@ void UART::send(uint8_t b)
 	UDRn = b;
 }
 
-void UART::send(uint8_t* b,uint8_t size)
+void UART::send(const uint8_t* b,uint8_t size)
 {
 	while(size--)
 	{
