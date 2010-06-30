@@ -11,8 +11,8 @@ public:
 	~RS485() {}
 	
 	virtual void send(const uint8_t* buf,uint8_t size);
-protected:
-	virtual void send(uint8_t b) {}
+private:
+	virtual void send(uint8_t b) { UART::send(b); }
 		
 };
 

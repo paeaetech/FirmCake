@@ -10,9 +10,12 @@
 #include "rs485.h"
 
 
+void operator delete(void*) {}
+
+
 void setup()
 {
-
+	rs485.send((const uint8_t*)"  ",2);
 }
 
 void loop()
