@@ -160,9 +160,9 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 
 # Default target.
-all: build
+all: build 
 
-build: elf hex
+build: version elf hex
 
 elf: $(TARGET).elf
 hex: $(TARGET).hex
@@ -173,8 +173,6 @@ sym: $(TARGET).sym
 # Program the device.  
 upload: $(TARGET).hex
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
-
-
 
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
@@ -247,6 +245,8 @@ $(TARGET).elf: $(OBJ)
 		@$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
 
+version:
+	@echo "#define BUILD_ID \"`git describe`\"" > build_id.h
 
 # Target: clean project.
 clean:

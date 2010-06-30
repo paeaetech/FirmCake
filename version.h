@@ -9,4 +9,6 @@
 #define NAME "FirmCake"
 
 
+#include "build_id.h"
+
 #endif /* end of include guard: VERSION_H_UBUGHFE1 */
