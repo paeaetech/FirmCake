@@ -15,7 +15,6 @@ RS485::RS485(uint8_t uartNum,uint16_t baudRate)
 	DDR(RS485_PORT_IE) |= _BV(RS485_PIN_IE);
 	DDR(RS485_PORT_OE) |= _BV(RS485_PIN_OE);
 	
-	PIN(RS485_PORT_IE) |= _BV(RS485_PIN_IE);
 }
 
 void RS485::send(const uint8_t* buf,uint8_t size)
