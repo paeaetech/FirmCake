@@ -2,10 +2,17 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "uart.h"
+#include "portAccess.h"
 
 #ifndef F_CPU
 #error F_CPU not defined
 #endif
+
+#if !defined(__AVR_ATmega1280__)
+#error UART doesnt support current cpu
+#endif
+
+
 
 namespace {
 	
@@ -16,6 +23,8 @@ namespace {
 
 
 	volatile uint8_t* portUDR[4] = { &UDR0, &UDR1, &UDR2, &UDR3 };
+	volatile uint8_t* portDDR[4] = { &DDRE, &DDRD, &DDRH, &DDRJ };
+	uint8_t portRxPin[4] = { _BV(PE1), _BV(PD3), _BV(PH1), _BV(PJ1) };
 	
 	UART* uartInstance[4];
 }
@@ -40,9 +49,6 @@ ISR(USART3_RX_vect)
 {
 	uartInstance[3]->isrCallback();
 }
-
-
-
 
 
 
@@ -78,6 +84,9 @@ UART::UART(uint8_t uartNum,uint16_t baudRate)
 	UBRRnL = ubrr;
 	UCSRnB = _BV(RXEN) | _BV(TXEN) | _BV(RXCIE);
 	UCSRnC = _BV(UCSZ1) | _BV(UCSZ0);
+	
+	//set tx pin as output
+	*portDDR[uartNum] |= portRxPin[uartNum];
 }
 
 uint8_t UART::available()
@@ -112,6 +121,7 @@ uint8_t UART::receive()
 
 void UART::isrCallback()
 {
+	//TODO: check for buffer full condition
 	mReceiveBuffer[mWritePos]=UDRn;
 	mWritePos = (mWritePos+1) & (UART_RECEIVE_BUFFER-1);
 	mBytesAvailable++;
