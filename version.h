@@ -11,7 +11,7 @@
 
 //build_id.h contains makefile generated BUILD_ID string define. you can also define it manually
 
-//#define BUILD_ID "none"
+#define BUILD_ID "none"
 #ifndef BUILD_ID
 #include "build_id.h"
 #endif

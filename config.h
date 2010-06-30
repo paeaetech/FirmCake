@@ -15,8 +15,9 @@
 //feature definitions
 #define USE_RS485
 #define USE_STEPPERS
-#define USE_EXTRUDER
-
+#define USE_EXTRUDER_TOOL
+#define USE_SDCARD
+#define USE_LCD
 
 //port/pin  definitions go here
 
@@ -27,10 +28,10 @@
 #define RS485_PIN_IE PD0
 #define RS485_PIN_OE PD1
 #define RS485_UART 1
-#define RS485_BAUDRATE 19200
+#define RS485_BAUDRATE 38400
 #endif
 
-#ifdef USE_EXTRUDER
+#ifdef USE_EXTRUDER_TOOL
 #define EXTRUDER_TYPE EXTRUDER_TYPE_GEN3
 #endif
 
@@ -38,45 +39,38 @@
 #ifdef USE_STEPPERS
 #define STEPPER_TYPE STEPPER_TYPE_GEN3
 
-#define STEPPERX_DIR_PORT
-#define STEPPERX_EN_PORT
-#define STEPPERX_STEP_PORT
-#define STEPPERX_MIN_PORT
-#define STEPPERX_MAX_PORT
+//currently stepper has all pins in same port
+#define STEPPERX_PORT PORTF
+#define STEPPERY_PORT PORTK
+#define STEPPERZ_PORT PORTA
 
-#define STEPPERX_DIR_PIN
-#define STEPPERX_EN_PIN
-#define STEPPERX_STEP_PIN
-#define STEPPERX_MIN_PIN
-#define STEPPERX_MAX_PIN
+#define STEPPERX_STEP_PIN PF0
+#define STEPPERX_DIR_PIN PF1
+#define STEPPERX_EN_PIN PF2
+#define STEPPERX_MIN_PIN PF3
+#define STEPPERX_MAX_PIN PF4
 
-#define STEPPERY_DIR_PORT
-#define STEPPERY_EN_PORT
-#define STEPPERY_STEP_PORT
-#define STEPPERY_MIN_PORT
-#define STEPPERY_MAX_PORT
+#define STEPPERY_STEP_PIN PK0
+#define STEPPERY_DIR_PIN PK1
+#define STEPPERY_EN_PIN PK2
+#define STEPPERY_MIN_PIN PK3
+#define STEPPERY_MAX_PIN PK4
 
-#define STEPPERY_DIR_PIN
-#define STEPPERY_EN_PIN
-#define STEPPERY_STEP_PIN
-#define STEPPERY_MIN_PIN
-#define STEPPERY_MAX_PIN
-
-#define STEPPERZ_DIR_PORT
-#define STEPPERZ_EN_PORT
-#define STEPPERZ_STEP_PORT
-#define STEPPERZ_MIN_PORT
-#define STEPPERZ_MAX_PORT
-
-#define STEPPERZ_DIR_PIN
-#define STEPPERZ_EN_PIN
-#define STEPPERZ_STEP_PIN
-#define STEPPERZ_MIN_PIN
-#define STEPPERZ_MAX_PIN
+#define STEPPERZ_STEP_PIN PA0
+#define STEPPERZ_DIR_PIN PA1
+#define STEPPERZ_EN_PIN PA2
+#define STEPPERZ_MIN_PIN PA3
+#define STEPPERZ_MAX_PIN PA4
 
 #endif
 
+#ifdef USE_SDCARD
 
+#endif
+
+#ifdef USE_LCD
+#define LCD_UART 2
+#endif
 
 
 #else
