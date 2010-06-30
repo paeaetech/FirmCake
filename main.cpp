@@ -5,6 +5,8 @@
 #include "config.h"
 #include "version.h"
 #include "portAccess.h"
+#include "uart.h"
+
 
 void setup()
 {

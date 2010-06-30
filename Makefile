@@ -56,7 +56,7 @@ ARDUINO_INSTALL = /Applications/Arduino.app/Contents/Resources/Java/hardware/
 
 #### below here should be OK.
 TARGET = main
-SOURCE = main.cpp eeprom.cpp
+SOURCE = main.cpp eeprom.cpp uart.cpp
 
 
 LIBRARIES :=
