@@ -16,6 +16,7 @@ public:
 	void setInverted(bool v) { mbInverted = v; }
 	void setEnabled(bool v);
 	
+	void doISR();
 	
 protected:
 	const volatile uint8_t * mpPort;
