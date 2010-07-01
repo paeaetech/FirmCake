@@ -16,14 +16,15 @@ public:
 	void setCurrentStep(uint32_t step) { mCurrentStep = step; }
 	uint32_t getTargetStep() const { return mTargetStep; }
 	void setTargetStep(uint32_t step); 
+	int32_t getDeltaSteps() const { return mDeltaSteps; }
 	
 	void setDirectionPositive(bool v);
 	void setInverted(bool v) { mbInverted = v; }
 	void setEnabled(bool v);
 	
 	bool needStepping() { return mCurrentStep != mTargetStep; }
-	
-	void doISR();
+
+	void doStep();
 	
 protected:
 	const volatile uint8_t * mpPort;
@@ -39,7 +40,6 @@ protected:
 	uint32_t mTargetStep;
 	int32_t mDeltaSteps;
 
-	void doStep();
 
 
 };

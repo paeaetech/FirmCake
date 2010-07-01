@@ -10,11 +10,18 @@ public:
 	StepperController();
 	
 	
+	void disableSteppers(bool x=true,bool y=true,bool z=true);
+	void enableSteppers(bool x=true, bool y=true, bool z=true);
+	
 	void setPoint(uint32_t x,uint32_t y,uint32_t z);
 	void setPoint(const Point& rPoint) { setPoint(rPoint.x,rPoint.y,rPoint.z); }
+
+	void moveTo(uint32_t x,uint32_t y,uint32_t z,uint32_t feedRate);
 	
+	bool isMoving();
 protected:
 	void doISR();
+
 	
 	static void timerCallback(void*udata) { StepperController* sc = reinterpret_cast<StepperController*>(udata); sc->doISR(); }
 	

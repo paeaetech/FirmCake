@@ -55,12 +55,4 @@ void Stepper::doStep()
 	PINP(mpPort) &= ~mStepPin;
 }
 
-void Stepper::doISR()
-{
-	//add endstop checking
-	
-	if (needStepping())
-		doStep();
-}
-
 
