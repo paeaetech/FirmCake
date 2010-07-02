@@ -3,3 +3,4 @@
 *.elf
 *.hex
 build_id.h
+test/

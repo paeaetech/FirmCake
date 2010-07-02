@@ -9,15 +9,28 @@
 
 #include "rs485.h"
 #include "Timer.h"
-
+#include "StepperController.h"
+#include "psu.h"
 
 void setup()
 {
+#ifdef USE_PSU
+	psu_init();
+	psu_on();
+#endif
+
+#ifdef USE_STEPPERS
+//	stepperController.setPoint(0,0,0);
+#endif
+
 }
 
 void loop()
 {
-	
+#ifdef USE_STEPPERS
+//	stepperController.update();
+#endif
+
 }
 
 

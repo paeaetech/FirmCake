@@ -35,7 +35,7 @@ public:
 	void reset();
 	
 	void setFrequency(uint32_t hz);
-	void setCallback(TimerCallback cb,void* userData=0);
+	void setCallback(TimerCallback cb,void* userData=0) { mpCB = cb; mpUserdata = userData; }
 	
 
 	void doISR();

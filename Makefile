@@ -49,14 +49,14 @@
 #### 
 #### EDIT THESE VALUES
 ####
-PORT = /dev/tty.usbserial-A6008ekk
+PORT = /dev/tty.usbserial-A6008rWu
 #PORT = /dev/tty.usbserial-A6007y8D
 #PORT = /dev/tty.usbserial-A6008bOI
 ARDUINO_INSTALL = /Applications/Arduino.app/Contents/Resources/Java/hardware/
 
 #### below here should be OK.
 TARGET = main
-SOURCE = main.cpp eeprom.cpp uart.cpp rs485.cpp eepromConfig.cpp Stepper.cpp StepperController.cpp Timer.cpp
+SOURCE = main.cpp eeprom.cpp uart.cpp rs485.cpp eepromConfig.cpp Stepper.cpp StepperController.cpp Timer.cpp psu.cpp
 
 
 LIBRARIES :=
@@ -119,14 +119,14 @@ CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
 ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs -ffunction-sections -fdata-sections -g
 CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CTUNING) $(CSTANDARD) $(CEXTRA) -ffunction-sections -fdata-sections
-CXXFLAGS = $(CDEFS) $(CINCS) -O$(OPT) $(CTUNING) -ffunction-sections -fdata-sections -g
+CXXFLAGS = $(CDEFS) $(CINCS) -O$(OPT) $(CTUNING) -g -ffunction-sections -fdata-sections
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs 
 LDFLAGS = -Wl,--gc-sections
 
 PROGPATH = $(ARDUINO_INSTALL)/tools/avr/bin
 
 # Programming support using avrdude. Settings and variables.
-AVRDUDE_DEVICE=m328p
+AVRDUDE_DEVICE=m1280
 AVRDUDE_PROGRAMMER = stk500v1
 AVRDUDE_PORT = $(PORT)
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
@@ -282,7 +282,8 @@ main.o: main.cpp \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/pgmspace.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  config.h version.h portAccess.h uart.h rs485.h Timer.h
+  config.h version.h portAccess.h uart.h rs485.h Timer.h \
+  StepperController.h Stepper.h owntypes.h
 eeprom.o: eeprom.cpp \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \

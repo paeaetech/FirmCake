@@ -4,11 +4,15 @@
 #include "config.h"
 #include "Timer.h"
 
+#ifdef USE_STEPPERS
+
 #define STEPPER_HZ 100000
 
 #define MAX(x,y) x > y ? x : y
 #define MIN(x,y) x < y ? x : y
 
+
+StepperController stepperController;
 
 namespace {
 	Stepper steppers[3] = {
@@ -79,14 +83,40 @@ void StepperController::moveTo(uint32_t x,uint32_t y,uint32_t z,uint32_t feedRat
 	uint8_t i;
 	for (i=0;i<3;i++)
 	{
-		int32_t delta = steppers[i].getDeltaSteps();
-		moveTime = MAX(moveTime,delta / (feedRate/STEPPER_HZ));
+		moveTime = MAX(moveTime,steppers[i].getDeltaSteps() / feedRate);
 	}
 	
 	for (i=0;i<3;i++)
 	{
-		stepDelay[i] = moveTime / steppers[i].getDeltaSteps();
+		stepDelay[i] = STEPPER_HZ / (steppers[i].getDeltaSteps() / moveTime);
 		currentStepTime[i] = stepDelay[i];
+	}
+	
+	mbMoving = isMoving();
+	
+	if (mbMoving)
+		timer.enable();
+		
+}
+
+void StepperController::update()
+{
+	if (mbMoving)
+	{
+#ifdef STEPPERX_DISABLE_INACTIVE
+		if (!steppers[0].needStepping())
+			steppers[0].disable();
+#endif
+#ifdef STEPPERY_DISABLE_INACTIVE
+		if (!steppers[1].needStepping())
+			steppers[1].disable();
+#endif
+#ifdef STEPPERZ_DISABLE_INACTIVE
+		if (!steppers[2].needStepping())
+			steppers[2].disable();
+#endif
+
+		mbMoving = isMoving();
 	}
 }
 
@@ -106,3 +136,4 @@ void StepperController::doISR()
 	}
 }
 
+#endif

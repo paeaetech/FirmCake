@@ -19,10 +19,10 @@ public:
 	void isrCallback();
 private:
 	
-	uint8_t mReceiveBuffer[UART_RECEIVE_BUFFER];
+	volatile uint8_t mReceiveBuffer[UART_RECEIVE_BUFFER];
 	uint8_t mReadPos;
-	uint8_t mWritePos;
-	uint8_t mBytesAvailable;
+	volatile uint8_t mWritePos;
+	volatile uint8_t mBytesAvailable;
 
 	
 	uint16_t mBaudrate;
