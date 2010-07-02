@@ -4,3 +4,4 @@
 *.hex
 build_id.h
 test/
+.DS_Store
