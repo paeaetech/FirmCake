@@ -11,12 +11,17 @@
 #include "Timer.h"
 #include "StepperController.h"
 #include "psu.h"
+#include "mmc/mmc.h"
 
 void setup()
 {
 #ifdef USE_PSU
 	psu_init();
 	psu_on();
+#endif
+
+#ifdef USE_SDCARD
+	mmcInit();
 #endif
 
 #ifdef USE_STEPPERS
@@ -28,7 +33,7 @@ void setup()
 void loop()
 {
 #ifdef USE_STEPPERS
-//	stepperController.update();
+	stepperController.update();
 #endif
 
 }

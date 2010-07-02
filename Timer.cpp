@@ -48,7 +48,7 @@ void Timer::disable()
 
 void Timer::reset()
 {
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+//	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 	{
 		mpIO->TCNTH = mTCNT>>8;
 		mpIO->TCNTL = mTCNT;
