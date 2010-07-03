@@ -9,9 +9,12 @@ class RS485 : public UART
 public:
 	RS485(uint8_t uartNum,uint16_t baudRate);
 	
+	void start();
+	void end();
+	
 	virtual void send(const uint8_t* buf,uint8_t size);
-private:
 	virtual void send(uint8_t b) { UART::send(b); }
+private:
 		
 };
 

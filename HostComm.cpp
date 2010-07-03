@@ -130,6 +130,10 @@ void HostComm::processPacket()
 			case HOST_CMD_PAUSE:
 			case HOST_CMD_PROBE:
 			case HOST_CMD_TOOL_QUERY:
+			{
+				
+				break;
+			}
 			case HOST_CMD_IS_FINISHED:
 			case HOST_CMD_READ_EEPROM:
 			case HOST_CMD_WRITE_EEPROM:
@@ -157,7 +161,15 @@ void HostComm::processCommandBuffer()
 		{
 			case HOST_CMD_TOOL_COMMAND:
 			{
-				
+				mSlavePacket.reset();
+				mSlavePacket.put8(mCommandBuffer.get()); //tool id
+				mSlavePacket.put8(mCommandBuffer.get()); //command
+				for (uint8_t i=0;i<mCommandBuffer.get();i++)
+				{
+					mSlavePacket.put8(mCommandBuffer.get());
+				}
+				sendSlavePacket();
+				readSlaveReply();
 			}
 			default:
 				break;
@@ -188,6 +200,80 @@ void HostComm::sendReply(HostReply r)
 	uart0.send(1); //length
 	uart0.send((uint8_t)r);
 	uart0.send(_crc_ibutton_update(0,r));
+}
+
+void HostComm::sendSlavePacket()
+{
+	rs485.start();
+	while(mSlavePacket.getBytesRemaining())
+	{
+		rs485.send(mSlavePacket.get8());
+	}
+	rs485.end();
+	
+}
+
+bool HostComm::sendSlaveQuery()
+{
+	sendSlavePacket();
+	
+	if (readSlaveReply())
+	{
+		while(mSlaveReplyPacket.getBytesRemaining())
+		{
+			mReplyPacket.put8(mSlaveReplyPacket.get8());
+		}
+		return true;
+	}
+		
+	return false;
+}
+
+bool HostComm::readSlaveReply()
+{
+	mSlaveReplyPacket.reset();
+	mSlaveState = WAIT_PACKET;
+	uint8_t packetLen;
+	uint8_t crc = 0;
+	uint32_t curTime = millis();
+	while(true)
+	{
+		if (rs485.available())
+		{
+			uint8_t b = rs485.receive();
+			switch(mSlaveState)
+			{
+				case WAIT_PACKET:
+					if (b == PACKET_START_BYTE)
+						mSlaveState = PACKET_LEN;
+					break;
+				case PACKET_LEN:
+					packetLen = b;
+					mSlaveState = PACKET_PAYLOAD;
+					break;
+				case PACKET_PAYLOAD:
+					crc = _crc_ibutton_update(crc,b);
+					mSlaveReplyPacket.put8(b);
+					packetLen--;
+					if (!packetLen)
+						mSlaveState = PACKET_CRC;
+					break;
+				case PACKET_CRC:
+					if (b != crc)
+						return false;
+					return true;
+			}
+			curTime = millis();
+		}
+		
+		
+		if (millis() > curTime+SLAVE_TIMEOUT)
+		{
+			return false;
+		}
+		
+	}
+	
 }
 
 

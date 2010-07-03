@@ -49,7 +49,9 @@ protected:
 	void copyPacketTo(Packet& rPacket,Packet& rDestPacket);
 	void packetFromCommandBuffer(Packet& rPacket);
 	
-	void sendToolPacket();
+	void sendSlavePacket();
+	bool sendSlaveQuery();
+	bool readSlaveReply();
 	
 	Packet mPacket;
 	Packet mReplyPacket;
@@ -58,6 +60,7 @@ protected:
 	RingBuffer mCommandBuffer;
 	
 	HostState mState;
+	HostState mSlaveState;
 	uint8_t mCrc;
 	uint16_t mPacketLen;
 	uint32_t lastMillis;
