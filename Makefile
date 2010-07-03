@@ -286,7 +286,8 @@ main.o: main.cpp \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/pgmspace.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
   config.h version.h portAccess.h uart.h rs485.h Timer.h \
-  StepperController.h Stepper.h owntypes.h psu.h
+  StepperController.h Stepper.h owntypes.h psu.h mmc/mmc.h mmc/global.h \
+  mmc/avrlibdefs.h mmc/avrlibtypes.h
 eeprom.o: eeprom.cpp \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
@@ -388,7 +389,11 @@ psu.o: psu.cpp psu.h config.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
   portAccess.h
-diskio.o: fatfs/diskio.cpp fatfs/diskio.h fatfs/integer.h
+diskio.o: fatfs/diskio.cpp \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
+  fatfs/diskio.h fatfs/integer.h fatfs/../mmc/mmc.h fatfs/../mmc/global.h \
+  fatfs/../mmc/avrlibdefs.h fatfs/../mmc/avrlibtypes.h
 pff.o: fatfs/pff.cpp fatfs/pff.h fatfs/integer.h fatfs/diskio.h
 mmc.o: mmc/mmc.cpp \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \

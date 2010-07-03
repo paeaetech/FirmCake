@@ -1,6 +1,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "config.h"
 #include "uart.h"
 #include "portAccess.h"
 
@@ -12,7 +13,7 @@
 #error UART doesnt support current cpu
 #endif
 
-
+UART uart0(0,HOST_BAUDRATE);
 
 namespace {
 	
@@ -72,10 +73,8 @@ ISR(USART3_RX_vect)
 
 
 UART::UART(uint8_t uartNum,uint16_t baudRate)
- : mUartNum(uartNum), 
-   mReadPos(0),
-   mWritePos(0),
-   mBytesAvailable(0),
+ : mRingBuffer(mBuffer,UART_RECEIVE_BUFFER),
+   mUartNum(uartNum), 
    mBaudrate(baudRate)
 {
 	uartInstance[uartNum] = this;
@@ -87,11 +86,6 @@ UART::UART(uint8_t uartNum,uint16_t baudRate)
 	
 	//set tx pin as output
 	*portDDR[uartNum] |= portRxPin[uartNum];
-}
-
-uint8_t UART::available()
-{
-	return mBytesAvailable;
 }
 
 void UART::send(uint8_t b)
@@ -111,20 +105,12 @@ void UART::send(const uint8_t* b,uint8_t size)
 
 uint8_t UART::receive()
 {
-	if (!available())
-		return 0;
-	
-	uint8_t b = mReceiveBuffer[mReadPos];
-	mReadPos = (mReadPos+1) & (UART_RECEIVE_BUFFER-1);
-	return b;
+	return mRingBuffer.get();
 }
 
 void UART::isrCallback()
 {
-	//TODO: check for buffer full condition
-	mReceiveBuffer[mWritePos]=UDRn;
-	mWritePos = (mWritePos+1) & (UART_RECEIVE_BUFFER-1);
-	mBytesAvailable++;
+	mRingBuffer.put(UDRn);
 }
 
 

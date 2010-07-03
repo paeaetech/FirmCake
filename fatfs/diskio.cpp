@@ -3,7 +3,7 @@
 /*-----------------------------------------------------------------------*/
 #include <inttypes.h>
 #include "diskio.h"
-#include "mmc/mmc.h"
+#include "../mmc/mmc.h"
 
 
 uint8_t buf[512];
@@ -13,7 +13,7 @@ uint32_t readSector;
 bool isWriting;
 bool readBufValid;
 
-void bufCopy(void *dest,uint8_t* src,uint16_t size)
+void bufCopy(void *dest,const uint8_t* src,uint16_t size)
 {
 	uint8_t* d = (uint8_t*)dest;
 	while(size--)
@@ -81,24 +81,20 @@ DRESULT disk_writep (
 
 	if (!buff) {
 		if (sc) {
-			
+			// Initiate write process
 			writePtr=0;
 			writeSector = sc;
 			isWriting=true;
-			// Initiate write process
-
 		} else {
-
 			// Finalize write process
 			isWriting=false;
 			return mmcWrite(writeSector,buf) == 0 ? RES_OK : RES_ERROR;
 		}
 	} else {
+		// Send data to the disk
 		bufCopy(&buf[writePtr],buff,sc);
 		writePtr+=sc;
 		readBufValid = false;
-		// Send data to the disk
-
 	}
 
 	return res;

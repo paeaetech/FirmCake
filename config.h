@@ -6,7 +6,13 @@
 
 //generic definitions
 #define STEPPER_TYPE_GEN3 0
+#define STEPPER_TYPE_MICROSTEP 1
+
 #define EXTRUDER_TYPE_GEN3 0
+
+
+
+#define HOST_BAUDRATE 57600
 
 
 #if defined(__AVR_ATmega1280__)
