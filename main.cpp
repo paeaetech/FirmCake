@@ -5,13 +5,15 @@
 #include "config.h"
 #include "version.h"
 #include "portAccess.h"
-#include "uart.h"
 
+#include "HostComm.h"
+#include "uart.h"
 #include "rs485.h"
 #include "Timer.h"
 #include "StepperController.h"
 #include "psu.h"
 #include "mmc/mmc.h"
+#include "utils.h"
 
 void setup()
 {
@@ -19,7 +21,8 @@ void setup()
 	psu_init();
 	psu_on();
 #endif
-
+	clock_init();
+	
 #ifdef USE_SDCARD
 	mmcInit();
 #endif
@@ -32,6 +35,7 @@ void setup()
 
 void loop()
 {
+	hostComm.update();
 #ifdef USE_STEPPERS
 	stepperController.update();
 #endif
@@ -39,8 +43,9 @@ void loop()
 }
 
 
+void main() __attribute__ ((noreturn));
 
-int main()
+void main() 
 {
 	setup();
 	

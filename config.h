@@ -13,6 +13,13 @@
 
 
 #define HOST_BAUDRATE 57600
+#define HOST_RECEIVE_BUFFER_SIZE 128
+#define HOST_REPLY_BUFFER_SIZE 32
+#define HOST_TIMEOUT 1000
+
+
+#define CLOCK_TIMER 1
+#define STEPPER_TIMER 5
 
 
 #if defined(__AVR_ATmega1280__)

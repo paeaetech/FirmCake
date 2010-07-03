@@ -59,7 +59,7 @@ TARGET = main
 
 FATFS = fatfs/diskio.cpp fatfs/pff.cpp
 MMC = mmc/mmc.cpp mmc/spi.cpp
-SOURCE = main.cpp eeprom.cpp uart.cpp rs485.cpp eepromConfig.cpp Stepper.cpp StepperController.cpp Timer.cpp psu.cpp $(FATFS) $(MMC)
+SOURCE = main.cpp eeprom.cpp uart.cpp rs485.cpp eepromConfig.cpp Stepper.cpp StepperController.cpp Timer.cpp psu.cpp HostComm.cpp utils.cpp $(FATFS) $(MMC)
 
 
 LIBRARIES :=
@@ -118,13 +118,13 @@ CXXINCS = -I$(ARDUINO) -I$(ARDUINOINC) $(LIBINC)
 CSTANDARD =  
 CDEBUG = -g$(DEBUG)
 CWARN = -Wall
-CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
+CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -ffreestanding
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
 ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-ggdb -ffunction-sections -fdata-sections -g
 CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CTUNING) $(CSTANDARD) $(CEXTRA) -ffunction-sections -fdata-sections
 CXXFLAGS = $(CDEFS) $(CINCS) -O$(OPT) $(CTUNING) -g -ffunction-sections -fdata-sections
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs 
-LDFLAGS = -Wl,--gc-sections
+LDFLAGS = -Wl,--gc-sections -Wl,--relax
 
 PROGPATH = $(ARDUINO_INSTALL)/tools/avr/bin/
 
@@ -285,9 +285,10 @@ main.o: main.cpp \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/pgmspace.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/include/stddef.h \
-  config.h version.h portAccess.h uart.h rs485.h Timer.h \
-  StepperController.h Stepper.h owntypes.h psu.h mmc/mmc.h mmc/global.h \
-  mmc/avrlibdefs.h mmc/avrlibtypes.h
+  config.h version.h portAccess.h HostComm.h Packet.h RingBuffer.h \
+  Commands.h uart.h rs485.h Timer.h StepperController.h Stepper.h \
+  owntypes.h psu.h mmc/mmc.h mmc/global.h mmc/avrlibdefs.h \
+  mmc/avrlibtypes.h utils.h
 eeprom.o: eeprom.cpp \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
@@ -316,7 +317,7 @@ uart.o: uart.cpp \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/interrupt.h \
-  uart.h portAccess.h
+  config.h uart.h RingBuffer.h portAccess.h
 rs485.o: rs485.cpp config.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
@@ -329,7 +330,7 @@ rs485.o: rs485.cpp config.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
-  rs485.h uart.h portAccess.h
+  rs485.h uart.h RingBuffer.h portAccess.h
 eepromConfig.o: eepromConfig.cpp eepromConfig.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
@@ -389,6 +390,35 @@ psu.o: psu.cpp psu.h config.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
   portAccess.h
+HostComm.o: HostComm.cpp \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/util/crc16.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
+  config.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom1280.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iomxx0_1.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h \
+  HostComm.h Packet.h RingBuffer.h Commands.h uart.h StepperController.h \
+  Stepper.h owntypes.h rs485.h utils.h
+utils.o: utils.cpp utils.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \
+  Timer.h config.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/io.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/sfr_defs.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iom1280.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/iomxx0_1.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/portpins.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/common.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/version.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/fuse.h \
+  /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/avr/lock.h
 diskio.o: fatfs/diskio.cpp \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/inttypes.h \
   /Applications/Arduino.app/Contents/Resources/Java/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/include/stdint.h \

@@ -24,7 +24,7 @@ namespace {
 	uint32_t stepDelay[3];
 	uint32_t currentStepTime[3];
 	
-	Timer timer(5,STEPPER_HZ);
+	Timer timer(STEPPER_TIMER,STEPPER_HZ);
 }
 
 
@@ -117,6 +117,8 @@ void StepperController::update()
 #endif
 
 		mbMoving = isMoving();
+		if (!mbMoving)
+			timer.disable();
 	}
 }
 

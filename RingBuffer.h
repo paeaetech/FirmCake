@@ -33,7 +33,11 @@ public:
 		}
 		return b;
 	}
-
+	
+	uint16_t getSize() const { return mBufferSize; }
+	
+	void reset() { mReadPos = 0; mWritePos = 0; mBytesAvailable = 0; }
+	
 protected:
 	uint8_t* mBuffer;
 	uint16_t mBufferSize;
