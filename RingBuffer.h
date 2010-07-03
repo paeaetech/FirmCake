@@ -15,26 +15,36 @@ public:
 	
 	uint16_t available() const { return mBytesAvailable; }
 	void put(uint8_t b) {
-		if (available() < mBufferSize)
-		{
-			mBuffer[mWritePos]=b;
-			mWritePos = (mWritePos+1) & (mBufferSize-1);
-			mBytesAvailable++;
-		}
+		mBuffer[mWritePos]=b;
+		mWritePos = (mWritePos+1) & (mBufferSize-1);
+		mBytesAvailable++;
 	}
+
 	uint8_t get() {
 		uint8_t b = 0;
-		if (available() > 0)
-		{
-			b = mBuffer[mReadPos];
-			mReadPos = (mReadPos+1) & (mBufferSize-1);
-			mBytesAvailable--;
-			
-		}
+		b = mBuffer[mReadPos];
+		mReadPos = (mReadPos+1) & (mBufferSize-1);
+		mBytesAvailable--;
 		return b;
 	}
 	
+	uint16_t get16() {
+		return ((uint16_t)get())<<8 + get();
+	}
+
+	uint32_t get32() {
+		return ((uint32_t)get16())<<16 + get16();
+	}
+
+	void undo8()
+	{
+		mReadPos = (mReadPos-1) & (mBufferSize-1);
+		mBytesAvailable++;
+	}
+
+	
 	uint16_t getSize() const { return mBufferSize; }
+	uint16_t getSpaceAvailable() { return mBufferSize - mBytesAvailable; }
 	
 	void reset() { mReadPos = 0; mWritePos = 0; mBytesAvailable = 0; }
 	

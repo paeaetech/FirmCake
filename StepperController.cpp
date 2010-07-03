@@ -34,6 +34,13 @@ StepperController::StepperController()
 	
 }
 
+void StepperController::getPoint(Point& rPoint)
+{
+	rPoint.x = steppers[0].getCurrentStep();
+	rPoint.y = steppers[1].getCurrentStep();
+	rPoint.z = steppers[2].getCurrentStep();
+}
+
 bool StepperController::isMoving()
 {
 	bool ret = false;

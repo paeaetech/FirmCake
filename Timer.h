@@ -47,12 +47,12 @@ protected:
 	
 	uint8_t mTimerNum;
 	uint32_t mHZ;
-	uint16_t mTCNT;
+	volatile uint16_t mTCNT;
 	uint8_t mPrescaler;
 	
-	void* mpUserdata;
-	TimerCallback mpCB;
-	TimerIOMap* mpIO;
+	volatile void* mpUserdata;
+	volatile TimerCallback mpCB;
+	volatile TimerIOMap* mpIO;
 	
 };
 

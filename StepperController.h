@@ -18,6 +18,7 @@ public:
 	void setPoint(const Point& rPoint) { setPoint(rPoint.x,rPoint.y,rPoint.z); }
 
 	void moveTo(uint32_t x,uint32_t y,uint32_t z,uint32_t feedRate);
+	void getPoint(Point& rPoint);
 	
 	bool isMoving();
 	

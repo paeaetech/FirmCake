@@ -2,6 +2,7 @@
 #define HOSTCOMM_H_9VL69MSF
 
 #include <inttypes.h>
+#include "RingBuffer.h"
 #include "Packet.h"
 #include "config.h"
 #include "Commands.h"
@@ -23,6 +24,8 @@ public:
 	HostComm();
 	
 	void update();
+	void processCommandBuffer();
+
 	bool hasFullPacket() { return false; }
 	
 	Packet& getPacket() { return mPacket; }
@@ -30,14 +33,29 @@ public:
 	
 protected:
 	
+	
 	void processPacket();
 	void sendReply(HostReply r);
+	void sendReply();
+	
+	
 	
 	uint8_t mReceiveBuffer[HOST_RECEIVE_BUFFER_SIZE];
 	uint8_t mReplyBuffer[HOST_REPLY_BUFFER_SIZE];
+	uint8_t mSlaveBuffer[HOST_SLAVE_BUFFER_SIZE];
+	uint8_t mSlaveReplyBuffer[HOST_SLAVE_REPLY_BUFFER_SIZE];
+	uint8_t mCommandBuf[COMMAND_BUFFER_SIZE];
+	
+	void copyPacketTo(Packet& rPacket,Packet& rDestPacket);
+	void packetFromCommandBuffer(Packet& rPacket);
+	
+	void sendToolPacket();
 	
 	Packet mPacket;
 	Packet mReplyPacket;
+	Packet mSlavePacket;
+	Packet mSlaveReplyPacket;
+	RingBuffer mCommandBuffer;
 	
 	HostState mState;
 	uint8_t mCrc;

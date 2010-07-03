@@ -1,4 +1,5 @@
 
+#include <avr/wdt.h>
 #include "utils.h"
 #include "Timer.h"
 #include "config.h"
@@ -19,6 +20,11 @@ void clock_init()
 	clockTimer.enable();
 }
 
+
+void reset()
+{
+	wdt_enable(WDTO_1S);
+}
 
 
 

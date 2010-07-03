@@ -2,6 +2,7 @@
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>
+#include <avr/wdt.h>
 #include "config.h"
 #include "version.h"
 #include "portAccess.h"
@@ -15,6 +16,14 @@
 #include "mmc/mmc.h"
 #include "utils.h"
 
+
+void initSystem()
+{
+#ifdef USE_STEPPERS
+	stepperController.setPoint(0,0,0);
+#endif
+}
+
 void setup()
 {
 #ifdef USE_PSU
@@ -26,16 +35,15 @@ void setup()
 #ifdef USE_SDCARD
 	mmcInit();
 #endif
-
-#ifdef USE_STEPPERS
-//	stepperController.setPoint(0,0,0);
-#endif
-
+	
+	initSystem();
 }
+
 
 void loop()
 {
 	hostComm.update();
+	hostComm.processCommandBuffer();
 #ifdef USE_STEPPERS
 	stepperController.update();
 #endif
@@ -47,6 +55,8 @@ void main() __attribute__ ((noreturn));
 
 void main() 
 {
+	wdt_reset();
+	wdt_disable();
 	setup();
 	
 	while(true)

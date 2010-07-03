@@ -14,10 +14,28 @@ public:
 	virtual uint8_t getCommand() const { return mCommand; }
 	virtual void processData(uint8_t b)
 	{
-		mBuffer.put(b);
+		put8(b);
 	}
 	
 	uint16_t getBytesRemaining() { return mBuffer.available(); }
+	uint16_t getSpaceAvailable() { return mBuffer.getSpaceAvailable(); }
+	
+	void put8(uint8_t b)
+	{
+		mBuffer.put(b);
+	}
+	
+	void put16(uint16_t b)
+	{
+		put8(b>>8);
+		put8(b&0xff);
+	}
+	
+	void put32(uint32_t b)
+	{
+		put16(b>>16);
+		put16(b&0xffff);
+	}
 	
 	uint8_t get8() 
 	{
