@@ -288,13 +288,20 @@ void HostComm::sendSlavePacket()
 	
 }
 
-
-
-//#define FAKE_SLAVE
-
 bool HostComm::sendSlaveQuery()
 {
-#ifdef FAKE_SLAVE
+#ifndef DEBUG_FAKE_SLAVE
+	sendSlavePacket();
+	
+	if (readSlaveReply())
+	{
+		copyPacketTo(mSlaveReplyPacket,mReplyPacket);
+		return true;
+	}
+		
+	return false;
+#else
+	//pretend that we have a slave device connected, for debugging.
 	uint8_t tool = mSlavePacket.get8();
 	DEBUG_OUTF("Tool index %d\r\n",tool);
 	SlaveCommand cmd = (SlaveCommand)mSlavePacket.get8();
@@ -407,16 +414,6 @@ bool HostComm::sendSlaveQuery()
 
 	copyPacketTo(mSlaveReplyPacket,mReplyPacket);
 	return true;
-#else
-	sendSlavePacket();
-	
-	if (readSlaveReply())
-	{
-		copyPacketTo(mSlaveReplyPacket,mReplyPacket);
-		return true;
-	}
-		
-	return false;
 #endif
 }
 

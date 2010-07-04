@@ -19,6 +19,8 @@
 #endif
 
 #define DEBUG
+#define DEBUG_FAKE_SLAVE
+
 
 #define HOST_BAUDRATE 38400
 #define HOST_RECEIVE_BUFFER_SIZE 32
