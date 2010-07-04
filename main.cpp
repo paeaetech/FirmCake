@@ -16,6 +16,17 @@
 #include "mmc/mmc.h"
 #include "utils.h"
 
+const char spBuildId[] PROGMEM = BUILD_ID;
+
+void wdt_init(void) __attribute__((naked)) __attribute__((section(".init3")));
+
+void wdt_init()
+{
+	wdt_reset();
+	wdt_disable();
+	return;
+}
+
 
 void initSystem()
 {
@@ -26,9 +37,11 @@ void initSystem()
 
 void setup()
 {
+	DDR(DEBUG_PORT) |= _BV(DEBUG_PIN);
+	DEBUG_ON();
+	
 #ifdef USE_PSU
 	psu_init();
-	psu_on();
 #endif
 	clock_init();
 	
@@ -37,6 +50,11 @@ void setup()
 #endif
 	
 	initSystem();
+	DEBUG_OFF();
+	DEBUG_OUT(NAME " ");
+	DEBUG_OUT(BUILD_ID);
+	DEBUG_OUT("\r\n");
+	sei();
 }
 
 
@@ -55,8 +73,6 @@ void main() __attribute__ ((noreturn));
 
 void main() 
 {
-	wdt_reset();
-	wdt_disable();
 	setup();
 	
 	while(true)

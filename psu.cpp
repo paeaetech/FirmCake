@@ -7,7 +7,7 @@
 void psu_init()
 {
 	DDR(PSU_PORT) = _BV(PSU_PIN);
-	psu_off();
+	psu_on();
 }
 
 void psu_on()

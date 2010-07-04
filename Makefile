@@ -49,6 +49,7 @@
 #### 
 #### EDIT THESE VALUES
 ####
+#PORT = /dev/tty.usbserial-FTF0GOUU 
 PORT = /dev/tty.usbserial-A6008rWu
 #PORT = /dev/tty.usbserial-A6007y8D
 #PORT = /dev/tty.usbserial-A6008bOI

@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "version.h"
 #include "owntypes.h"
+#include "fatfs/pff.h"
 
 HostComm hostComm;
 
@@ -34,8 +35,11 @@ void HostComm::update()
 	
 	while(uart0.available())
 	{
+		DEBUG_ON();
 		uint8_t b = uart0.receive();
 		lastMillis = millis();
+		DEBUG_OUTB(b);
+		
 		switch(mState)
 		{
 			case WAIT_PACKET:
@@ -67,6 +71,7 @@ void HostComm::update()
 				mState = WAIT_PACKET;
 				break;
 		}
+		DEBUG_OFF();
 	}
 }
 

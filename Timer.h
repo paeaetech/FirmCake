@@ -49,7 +49,7 @@ protected:
 	uint32_t mHZ;
 	volatile uint16_t mTCNT;
 	uint8_t mPrescaler;
-	
+	volatile bool doCallback;
 	volatile void* mpUserdata;
 	volatile TimerCallback mpCB;
 	volatile TimerIOMap* mpIO;

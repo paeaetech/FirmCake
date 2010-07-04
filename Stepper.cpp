@@ -6,24 +6,35 @@
 
 #define ABS(x) (x < 0 ? -x : x)
 
-Stepper::Stepper(volatile uint8_t *port,uint8_t stepPin,uint8_t dirPin,uint8_t enPin,uint8_t minPin,uint8_t maxPin)
-: mpPort(port), 
+Stepper::Stepper(volatile uint8_t *stepPort,uint8_t stepPin,
+		volatile uint8_t *dirPort,uint8_t dirPin,
+		volatile uint8_t *enPort,uint8_t enPin,
+		volatile uint8_t *minPort,uint8_t minPin,
+		volatile uint8_t *maxPort,uint8_t maxPin)
+: mpStepPort(stepPort), 
   mStepPin(stepPin),
+  mpDirPort(dirPort),
   mDirPin(dirPin),
+  mpEnPort(enPort),
   mEnPin(enPin),
+  mpMinPort(minPort),
   mMinPin(minPin),
+  mpMaxPort(maxPort),
   mMaxPin(maxPin)
 {
-	DDRP(mpPort) = mStepPin | mDirPin | mEnPin;
+	DDRP(mpStepPort) |= mStepPin;
+	DDRP(mpDirPort) |= mDirPin;
+	DDRP(mpEnPort) |= mEnPin;
+
 	reset();
 }
 
 void Stepper::setEnabled(bool v)
 {
 	if (v)
-		PINP(mpPort) |= mEnPin;
+		PINP(mpEnPort) |= mEnPin;
 	else
-		PINP(mpPort) &= ~mEnPin;
+		PINP(mpEnPort) &= ~mEnPin;
 }
 
 void Stepper::setDirectionPositive(bool v)
@@ -31,9 +42,9 @@ void Stepper::setDirectionPositive(bool v)
 	mbDirectionPositive = mbInverted ? !v : v;
 
 	if (mbDirectionPositive)
-		PINP(mpPort) |= mDirPin;
+		PINP(mpDirPort) |= mDirPin;
 	else
-		PINP(mpPort) &= ~mDirPin;
+		PINP(mpDirPort) &= ~mDirPin;
 }
 
 void Stepper::setTargetStep(uint32_t step)
@@ -51,8 +62,8 @@ void Stepper::setTargetStep(uint32_t step)
 void Stepper::doStep()
 {
 	mCurrentStep += mbDirectionPositive ? 1 : -1;
-	PINP(mpPort) |= mStepPin;
-	PINP(mpPort) &= ~mStepPin;
+	PINP(mpStepPort) |= mStepPin;
+	PINP(mpStepPort) &= ~mStepPin;
 }
 
 

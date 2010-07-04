@@ -6,7 +6,11 @@
 class Stepper
 {
 public:
-	Stepper(volatile uint8_t *port,uint8_t stepPin,uint8_t dirPin,uint8_t enPin,uint8_t minPin,uint8_t maxPin);
+	Stepper(volatile uint8_t *stepPort,uint8_t stepPin,
+			volatile uint8_t *dirPort,uint8_t dirPin,
+			volatile uint8_t *enPort,uint8_t enPin,
+			volatile uint8_t *minPort,uint8_t minPin,
+			volatile uint8_t *maxPort,uint8_t maxPin);
 
 	void enable() { setEnabled(true); }
 	void disable() { setEnabled(false); }
@@ -32,7 +36,12 @@ public:
 	virtual void doStep();
 	
 protected:
-	const volatile uint8_t * mpPort;
+	const volatile uint8_t * mpStepPort;
+	const volatile uint8_t * mpDirPort;
+	const volatile uint8_t * mpEnPort;
+	const volatile uint8_t * mpMinPort;
+	const volatile uint8_t * mpMaxPort;
+
 	const uint8_t mStepPin;
 	const uint8_t mDirPin;
 	const uint8_t mEnPin;

@@ -9,11 +9,7 @@
 #error F_CPU not defined
 #endif
 
-#if !defined(__AVR_ATmega1280__)
-#error UART doesnt support current cpu
-#endif
-
-UART uart0(0,HOST_BAUDRATE);
+UART uart0(HOST_UART,HOST_BAUDRATE);
 
 namespace {
 	
@@ -22,12 +18,46 @@ namespace {
 		return F_CPU/16/baud-1;
 	}	
 
+#if defined(__AVR_ATmega1280__) //mega
+	volatile uint8_t* portUDR[NUM_UARTS] = { 
+			&UDR0, 
+			&UDR1,
+			&UDR2,
+			&UDR3
+	};
+	volatile uint8_t* portDDR[NUM_UARTS] = { 
+			&DDRE, 
+			&DDRD,
+			&DDRH,
+			&DDRJ
+	};
 
-	volatile uint8_t* portUDR[4] = { &UDR0, &UDR1, &UDR2, &UDR3 };
-	volatile uint8_t* portDDR[4] = { &DDRE, &DDRD, &DDRH, &DDRJ };
-	uint8_t portRxPin[4] = { _BV(PE1), _BV(PD3), _BV(PH1), _BV(PJ1) };
+	uint8_t portTxPin[NUM_UARTS] = { 
+		_BV(PE1), 
+		_BV(PD3), 
+		_BV(PH1), 
+		_BV(PJ1) 
+	};
+#elif defined(__AVR_ATmega644P__) //sanguino
+	volatile uint8_t* portUDR[NUM_UARTS] = { 
+			&UDR0, 
+			&UDR1,
+	};
+	volatile uint8_t* portDDR[NUM_UARTS] = { 
+			&DDRD, 
+			&DDRD,
+	};
+
+	uint8_t portTxPin[NUM_UARTS] = { 
+		_BV(PD1), 
+		_BV(PD3), 
+	};
+
+#else
+#error UART doesnt support current cpu
+#endif
 	
-	UART* uartInstance[4];
+	UART* uartInstance[NUM_UARTS];
 }
 
 
@@ -35,22 +65,24 @@ ISR(USART0_RX_vect)
 {
 	uartInstance[0]->isrCallback();
 }
-
+#if NUM_UARTS > 1
 ISR(USART1_RX_vect)
 {
 	uartInstance[1]->isrCallback();
 }
-
+#endif
+#if NUM_UARTS > 2
 ISR(USART2_RX_vect)
 {
 	uartInstance[2]->isrCallback();
 }
-
+#endif
+#if NUM_UARTS > 3
 ISR(USART3_RX_vect)
 {
 	uartInstance[3]->isrCallback();
 }
-
+#endif
 
 
 #define UDRn *(volatile uint8_t*)(portUDR[mUartNum])
@@ -85,7 +117,7 @@ UART::UART(uint8_t uartNum,uint16_t baudRate)
 	UCSRnC = _BV(UCSZ1) | _BV(UCSZ0);
 	
 	//set tx pin as output
-	*portDDR[uartNum] |= portRxPin[uartNum];
+	*portDDR[uartNum] |= portTxPin[uartNum];
 }
 
 void UART::send(uint8_t b)
