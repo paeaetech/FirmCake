@@ -136,6 +136,24 @@ void HostComm::processPacket()
 				mReplyPacket.put32(p.z);
 				break;
 			}
+			case HOST_CMD_GET_RANGE:
+			{
+				Point p;
+				stepperController.getRange(p);
+				mReplyPacket.put32(p.x);
+				mReplyPacket.put32(p.y);
+				mReplyPacket.put32(p.z);
+				break;
+			}
+			case HOST_CMD_SET_RANGE:
+			{
+				Point p;
+				p.x = mPacket.get32();
+				p.y = mPacket.get32();
+				p.z = mPacket.get32();
+				stepperController.setRange(p);
+				break;
+			}
 			case HOST_CMD_RESET:
 				DEBUG_OUT("CMD_RESET\r\n");
 				sendReply();
@@ -155,6 +173,12 @@ void HostComm::processPacket()
 					mReplyPacket.reset();
 					mReplyPacket.setCommand(HOST_REPLY_UNSUPPORTED);
 				}
+				break;
+			}
+			case HOST_CMD_IS_FINISHED:
+			{
+				bool finished = stepperController.isMoving() != true && mCommandBuffer.available() == 0;
+				mReplyPacket.put8(finished ? 1 : 0);
 				break;
 			}
 			case HOST_CMD_READ_EEPROM:
@@ -191,18 +215,16 @@ void HostComm::processPacket()
 				mReplyPacket.put8(count);
 				break;
 			}
-			case HOST_CMD_GET_RANGE:
-			case HOST_CMD_SET_RANGE:
 			case HOST_CMD_ABORT:
 			case HOST_CMD_PAUSE:
-			case HOST_CMD_PROBE:
-
-			case HOST_CMD_IS_FINISHED:
+				break;
 		  	case HOST_CMD_CAPTURE_TO_FILE:
 			case HOST_CMD_END_CAPTURE:
 		  	case HOST_CMD_PLAYBACK_CAPTURE:
 			case HOST_CMD_NEXT_FILENAME:
 			case HOST_CMD_GET_DBG_REG:
+
+			case HOST_CMD_PROBE:
 			default:
 				mReplyPacket.setCommand(HOST_REPLY_UNSUPPORTED);
 				break;

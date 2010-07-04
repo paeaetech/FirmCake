@@ -21,6 +21,9 @@ public:
 	void moveTo(int32_t x,int32_t y,int32_t z,int32_t feedRate);
 	void getPoint(Point& rPoint);
 	
+	void getRange(Point& rP) { rP.x = mRange.x; rP.y = mRange.y; rP.z = mRange.z; }
+	void setRange(const Point& rP) { mRange.x = rP.x; mRange.y = rP.y; mRange.z = rP.z; }
+	
 	bool isMoving();
 	
 	void update();
@@ -28,6 +31,7 @@ protected:
 	void doISR();
 
 	bool mbMoving;
+	Point mRange;
 	
 	static void timerCallback(void*udata) { StepperController* sc = reinterpret_cast<StepperController*>(udata); sc->doISR(); }
 	
