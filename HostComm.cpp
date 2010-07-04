@@ -280,7 +280,7 @@ void HostComm::sendSlavePacket()
 
 
 
-#define FAKE_SLAVE
+//#define FAKE_SLAVE
 
 bool HostComm::sendSlaveQuery()
 {
