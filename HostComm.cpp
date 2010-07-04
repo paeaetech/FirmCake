@@ -124,16 +124,26 @@ void HostComm::processPacket()
 				reset();
 				break;
 
+			case HOST_CMD_TOOL_QUERY:
+			{
+				mSlavePacket.reset();
+				while(mPacket.getBytesRemaining())
+				{
+					mSlavePacket.put8(mPacket.get8());
+				}
+				if (!sendSlaveQuery())
+				{
+					mReplyPacket.reset();
+					mReplyPacket.setCommand(HOST_REPLY_ERROR);
+				}
+				break;
+			}
 			case HOST_CMD_GET_RANGE:
 			case HOST_CMD_SET_RANGE:
 			case HOST_CMD_ABORT:
 			case HOST_CMD_PAUSE:
 			case HOST_CMD_PROBE:
-			case HOST_CMD_TOOL_QUERY:
-			{
-				
-				break;
-			}
+
 			case HOST_CMD_IS_FINISHED:
 			case HOST_CMD_READ_EEPROM:
 			case HOST_CMD_WRITE_EEPROM:
