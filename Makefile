@@ -73,7 +73,7 @@ TARGET = main
 
 FATFS = fatfs/diskio.cpp fatfs/pff.cpp
 MMC = mmc/mmc.cpp mmc/spi.cpp
-SOURCE = main.cpp eeprom.cpp uart.cpp rs485.cpp eepromConfig.cpp Stepper.cpp StepperController.cpp Timer.cpp psu.cpp HostComm.cpp utils.cpp $(FATFS) $(MMC)
+SOURCE = main.cpp eeprom.cpp uart.cpp rs485.cpp eepromConfig.cpp Stepper.cpp StepperController.cpp Timer.cpp psu.cpp HostComm.cpp utils.cpp State.cpp $(FATFS) $(MMC)
 
 
 LIBRARIES :=

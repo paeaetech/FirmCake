@@ -4,6 +4,7 @@
 #include "config.h"
 #include "Stepper.h"
 #include "owntypes.h"
+#include "RingBuffer.h"
 
 class StepperController
 {
@@ -14,10 +15,10 @@ public:
 	void disableSteppers(bool x=true,bool y=true,bool z=true);
 	void enableSteppers(bool x=true, bool y=true, bool z=true);
 	
-	void setPoint(uint32_t x,uint32_t y,uint32_t z);
+	void setPoint(int32_t x,int32_t y,int32_t z);
 	void setPoint(const Point& rPoint) { setPoint(rPoint.x,rPoint.y,rPoint.z); }
 
-	void moveTo(uint32_t x,uint32_t y,uint32_t z,uint32_t feedRate);
+	void moveTo(int32_t x,int32_t y,int32_t z,int32_t feedRate);
 	void getPoint(Point& rPoint);
 	
 	bool isMoving();

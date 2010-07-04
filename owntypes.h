@@ -4,12 +4,12 @@
 #include <inttypes.h>
 
 struct Point {
-	uint32_t x;
-	uint32_t y;
-	uint32_t z;
+	int32_t x;
+	int32_t y;
+	int32_t z;
 	
 	Point() : x(0),y(0),z(0) {}
-	Point(uint32_t _x,uint32_t _y,uint32_t _z) : x(_x), y(_y), z(_z) {}
+	Point(int32_t _x,int32_t _y,int32_t _z) : x(_x), y(_y), z(_z) {}
 };
 
 

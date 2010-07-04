@@ -6,7 +6,7 @@
 #include "config.h"
 #include "version.h"
 #include "portAccess.h"
-
+#include "State.h"
 #include "eepromConfig.h"
 #include "HostComm.h"
 #include "uart.h"
@@ -73,7 +73,20 @@ void setup()
 void loop()
 {
 	hostComm.update();
-	hostComm.processCommandBuffer();
+
+	switch(mainState)
+	{
+		case STATE_RUNNING:
+			hostComm.processCommandBuffer();
+			break;
+		case STATE_DELAY:
+			updateDelayState();
+			break;
+		case STATE_WAIT_FOR_SLAVE:
+			hostComm.updateSlaveWaitState();
+			break;
+	}
+
 #ifdef USE_STEPPERS
 	stepperController.update();
 #endif

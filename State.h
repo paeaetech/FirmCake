@@ -1,6 +1,7 @@
 #ifndef STATE_H_KJ7K2IVN
 #define STATE_H_KJ7K2IVN
 
+#include <inttypes.h>
 
 enum MachineState
 {
@@ -11,5 +12,7 @@ enum MachineState
 
 extern MachineState mainState;
 
+void updateDelayState();
+void initDelayState(uint32_t delayMs);
 
 #endif /* end of include guard: STATE_H_KJ7K2IVN */

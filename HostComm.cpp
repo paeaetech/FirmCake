@@ -1,6 +1,7 @@
 
 #include <util/crc16.h>
 #include "config.h"
+#include "State.h"
 #include "HostComm.h"
 #include "uart.h"
 #include "Packet.h"
@@ -270,10 +271,19 @@ void HostComm::sendReply(HostReply r)
 void HostComm::sendSlavePacket()
 {
 	rs485.start();
+	uint8_t crc=0;
+	
+	rs485.send(PACKET_START_BYTE);
+	rs485.send(mSlavePacket.getBytesRemaining());
+	
 	while(mSlavePacket.getBytesRemaining())
 	{
-		rs485.send(mSlavePacket.get8());
+		uint8_t b = mSlavePacket.get8();
+		rs485.send(b);
+		crc = _crc_ibutton_update(crc,b);
 	}
+	rs485.send(crc);
+	
 	rs485.end();
 	
 }
@@ -410,6 +420,15 @@ bool HostComm::sendSlaveQuery()
 #endif
 }
 
+bool HostComm::sendSlaveQuery(SlaveCommand cmd)
+{
+	mSlavePacket.reset();
+	mSlavePacket.put8(0); //tool
+	mSlavePacket.put8(cmd);
+	sendSlavePacket();
+	return readSlaveReply();
+}
+
 bool HostComm::readSlaveReply()
 {
 	mSlaveReplyPacket.reset();
@@ -458,4 +477,25 @@ bool HostComm::readSlaveReply()
 	
 }
 
+void HostComm::updateSlaveWaitState()
+{
+	if (millis() > mLastSlaveReadyCheck+100)
+	{
+		if (sendSlaveQuery(SLAVE_CMD_IS_TOOL_READY))
+		{
+			uint8_t t = mSlaveReplyPacket.get8();
+			if (t)
+			{
+				mainState = STATE_RUNNING;
+			}
+			else
+			{
+				if (millis() > mSlaveWaitTimeout)
+					mainState = STATE_RUNNING;
+				else
+					mLastSlaveReadyCheck = millis()+100;
+			}
+		}
+	}
+}
 

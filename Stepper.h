@@ -17,10 +17,10 @@ public:
 	
 	virtual void reset() { mCurrentStep = 0; mTargetStep = 0; mDeltaSteps = 0; }
 	
-	uint32_t getCurrentStep() const { return mCurrentStep; }
-	uint32_t getTargetStep() const { return mTargetStep; }
-	virtual void setCurrentStep(uint32_t step) { mCurrentStep = step; }
-	virtual void setTargetStep(uint32_t step); 
+	int32_t getCurrentStep() const { return mCurrentStep; }
+	int32_t getTargetStep() const { return mTargetStep; }
+	virtual void setCurrentStep(int32_t step) { mCurrentStep = step; }
+	virtual void setTargetStep(int32_t step); 
 
 	int32_t getDeltaSteps() const { return mDeltaSteps; }
 
@@ -50,8 +50,8 @@ protected:
 	bool mbInverted;
 	bool mbDirectionPositive;
 	
-	uint32_t mCurrentStep;
-	uint32_t mTargetStep;
+	int32_t mCurrentStep;
+	int32_t mTargetStep;
 	int32_t mDeltaSteps;
 
 

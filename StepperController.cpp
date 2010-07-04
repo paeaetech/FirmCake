@@ -84,7 +84,7 @@ void StepperController::enableSteppers(bool x, bool y, bool z)
 }
 
 
-void StepperController::setPoint(uint32_t x,uint32_t y,uint32_t z)
+void StepperController::setPoint(int32_t x,int32_t y,int32_t z)
 {
 	steppers[0].setCurrentStep(x);
 	steppers[1].setCurrentStep(y);
@@ -92,7 +92,7 @@ void StepperController::setPoint(uint32_t x,uint32_t y,uint32_t z)
 
 }
 
-void StepperController::moveTo(uint32_t x,uint32_t y,uint32_t z,uint32_t feedRate)
+void StepperController::moveTo(int32_t x,int32_t y,int32_t z,int32_t feedRate)
 {
 	steppers[0].setTargetStep(x);
 	steppers[1].setTargetStep(y);

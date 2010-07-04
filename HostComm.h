@@ -31,6 +31,8 @@ public:
 	Packet& getPacket() { return mPacket; }
 	Packet& getReplyPacket() { return mReplyPacket; }
 	
+	void updateSlaveWaitState();
+	
 protected:
 	
 	
@@ -51,6 +53,8 @@ protected:
 	
 	void sendSlavePacket();
 	bool sendSlaveQuery();
+	bool sendSlaveQuery(SlaveCommand cmd);
+	
 	bool readSlaveReply();
 	
 	Packet mPacket;
@@ -61,6 +65,9 @@ protected:
 	
 	HostState mState;
 	HostState mSlaveState;
+	uint32_t mLastSlaveReadyCheck;
+	uint32_t mSlaveWaitTimeout;
+	
 	uint8_t mCrc;
 	uint16_t mPacketLen;
 	uint32_t lastMillis;

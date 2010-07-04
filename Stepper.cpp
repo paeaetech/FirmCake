@@ -47,7 +47,7 @@ void Stepper::setDirectionPositive(bool v)
 		PINP(mpDirPort) &= ~mDirPin;
 }
 
-void Stepper::setTargetStep(uint32_t step)
+void Stepper::setTargetStep(int32_t step)
 {
 	mTargetStep = step;
 	mDeltaSteps = mTargetStep - mCurrentStep;
