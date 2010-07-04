@@ -487,15 +487,14 @@ void HostComm::updateSlaveWaitState()
 			if (t)
 			{
 				mainState = STATE_RUNNING;
+				return;
 			}
 			else
-			{
-				if (millis() > mSlaveWaitTimeout)
-					mainState = STATE_RUNNING;
-				else
-					mLastSlaveReadyCheck = millis()+100;
-			}
+				mLastSlaveReadyCheck = millis()+100;
 		}
 	}
+	
+	if (millis() > mSlaveWaitTimeout)
+		mainState = STATE_RUNNING;
 }
 
