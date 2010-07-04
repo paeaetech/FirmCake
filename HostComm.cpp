@@ -40,7 +40,6 @@ void HostComm::update()
 		DEBUG_ON();
 		uint8_t b = uart0.receive();
 		lastMillis = millis();
-		
 		switch(mState)
 		{
 			case WAIT_PACKET:
@@ -62,13 +61,17 @@ void HostComm::update()
 				mCrc = _crc_ibutton_update(mCrc,b);
 				mPacketLen--;
 				if (!mPacketLen)
+				{
 					mState = PACKET_CRC;
+				}
 				break;
 			case PACKET_CRC:
 				if (mCrc != b)
 					sendReply(HOST_REPLY_INVALID_CRC);
 				else
+				{
 					processPacket();
+				}
 				mState = WAIT_PACKET;
 				break;
 		}
@@ -107,14 +110,20 @@ void HostComm::processPacket()
 		switch((HostCommand)mPacket.getCommand())
 		{
 			case HOST_CMD_VERSION:
+			{
+				uint16_t v = mPacket.get16();
+				DEBUG_OUTF("CMD_VERSION: %d.%d\r\n",v/100,v%100);
 				mReplyPacket.put16(202); //fake version to replicatorg
 				break;
+			}
 			case HOST_CMD_INIT:
 				break;
 			case HOST_CMD_GET_BUFFER_SIZE:
 				mReplyPacket.put16(mCommandBuffer.getSpaceAvailable());
+				DEBUG_OUTF("CMD_GET_BUFFER_SIZE: %d\r\n",mCommandBuffer.getSpaceAvailable());
 				break;
 			case HOST_CMD_CLEAR_BUFFER:
+				DEBUG_OUT("CMD_CLEAR_BUFFER\r\n");
 				mCommandBuffer.reset();
 				break;
 			case HOST_CMD_GET_POSITION:
@@ -127,11 +136,13 @@ void HostComm::processPacket()
 				break;
 			}
 			case HOST_CMD_RESET:
+				DEBUG_OUT("CMD_RESET\r\n");
 				reset();
 				break;
 
 			case HOST_CMD_TOOL_QUERY:
 			{
+				DEBUG_OUT("CMD_TOOL_QUERY\r\n");
 				mSlavePacket.reset();
 				while(mPacket.getBytesRemaining())
 				{
@@ -148,7 +159,7 @@ void HostComm::processPacket()
 			{
 				uint16_t offset = mPacket.get16();
 				uint8_t count = mPacket.get8();
-				DEBUG_OUTF("read eeprom offset=%d, count=%d\r\n",offset,count);
+				DEBUG_OUTF("CMD_READ_EEPROM offset=%d, count=%d\r\n",offset,count);
 				if (count > 16)
 					mReplyPacket.setCommand(HOST_REPLY_BUFFER_OVERFLOW);
 				else
@@ -170,7 +181,7 @@ void HostComm::processPacket()
 			{
 				uint16_t offset = mPacket.get16();
 				uint8_t count = mPacket.get8();
-				DEBUG_OUTF("write eeprom offset=%d, count=%d\r\n",offset,count);
+				DEBUG_OUTF("CMD_WRITE_EEPROM offset=%d, count=%d\r\n",offset,count);
 				for (uint8_t i=0;i<count;i++)
 				{
 					eeprom_write(offset+i,mPacket.get8());
@@ -208,6 +219,10 @@ void HostComm::processCommandBuffer()
 		{
 			case HOST_CMD_TOOL_COMMAND:
 			{
+				mReplyPacket.reset();
+				mReplyPacket.setCommand(HOST_REPLY_OK);
+				
+				DEBUG_OUT("HOST_CMD_TOOL_COMMAND\r\n");
 				mSlavePacket.reset();
 				mSlavePacket.put8(mCommandBuffer.get()); //tool id
 				mSlavePacket.put8(mCommandBuffer.get()); //command
@@ -215,8 +230,10 @@ void HostComm::processCommandBuffer()
 				{
 					mSlavePacket.put8(mCommandBuffer.get());
 				}
-				sendSlavePacket();
-				readSlaveReply();
+//				sendSlavePacket();
+//				readSlaveReply();
+				sendSlaveQuery();
+				sendReply();
 			}
 			default:
 				break;
@@ -260,8 +277,129 @@ void HostComm::sendSlavePacket()
 	
 }
 
+
+
+//#define FAKE_SLAVE
+
 bool HostComm::sendSlaveQuery()
 {
+#ifdef FAKE_SLAVE
+	uint8_t tool = mSlavePacket.get8();
+	DEBUG_OUTF("Tool index %d\r\n",tool);
+	SlaveCommand cmd = (SlaveCommand)mSlavePacket.get8();
+	switch(cmd)
+	{
+		case SLAVE_CMD_VERSION:
+			DEBUG_OUT("SLAVE_CMD_VERSION\r\n");
+			mSlaveReplyPacket.put16(203);
+			break;
+		case SLAVE_CMD_INIT:
+			DEBUG_OUT("SLAVE_CMD_INIT\r\n");
+			break;
+		case SLAVE_CMD_GET_TEMP:
+			DEBUG_OUT("SLAVE_CMD_GET_TEMP\r\n");
+			mSlaveReplyPacket.put16(23);
+			break;
+		case SLAVE_CMD_SET_TEMP:
+		{
+			uint16_t t=mSlavePacket.get16();
+			DEBUG_OUTF("SLAVE_CMD_SET_TEMP t=%d\r\n",t);
+			break;
+		}
+		case SLAVE_CMD_GET_PLATFORM_TEMP:
+		{
+			DEBUG_OUT("SLAVE_CMD_GET_PLATFORM_TEMP\r\n");
+			mSlaveReplyPacket.put16(23);
+			break;
+		}
+		case SLAVE_CMD_SET_PLATFORM_TEMP:
+		{
+			uint16_t t=mSlavePacket.get16();
+			DEBUG_OUTF("SLAVE_CMD_SET_PLATFORM_TEMP t=%d\r\n",t);
+			break;
+		}
+		case SLAVE_CMD_SET_MOTOR_1_PWM:
+		{
+			uint8_t t = mSlavePacket.get8();
+			DEBUG_OUTF("SLAVE_CMD_SET_MOTOR_1_PWM t=%d\r\n",t);
+			break;
+		}	
+		case SLAVE_CMD_SET_MOTOR_2_PWM:
+		{
+			uint8_t t = mSlavePacket.get8();
+			DEBUG_OUTF("SLAVE_CMD_SET_MOTOR_2_PWM t=%d\r\n",t);
+			break;
+		}	
+		case SLAVE_CMD_SET_MOTOR_1_RPM:
+		{
+			uint32_t t = mSlavePacket.get32();
+			DEBUG_OUTF("SLAVE_CMD_SET_MOTOR_1_RPM t=%d\r\n",t);
+			break;
+		}	
+		case SLAVE_CMD_SET_MOTOR_2_RPM:
+		{
+			uint32_t t = mSlavePacket.get32();
+			DEBUG_OUTF("SLAVE_CMD_SET_MOTOR_2_RPM t=%d\r\n",t);
+			break;
+		}	
+		case SLAVE_CMD_SET_MOTOR_1_DIR:
+		{
+			uint8_t t = mSlavePacket.get8();
+			DEBUG_OUTF("SLAVE_CMD_SET_MOTOR_1_DIR t=%s\r\n",t ? "forward" : "reverse");
+			break;
+		}
+		case SLAVE_CMD_SET_MOTOR_2_DIR:
+		{
+			uint8_t t = mSlavePacket.get8();
+			DEBUG_OUTF("SLAVE_CMD_SET_MOTOR_2_DIR t=%s\r\n",t ? "forward" : "reverse");
+			break;
+		}
+		case SLAVE_CMD_TOGGLE_MOTOR_1:
+		{
+			uint8_t t = mSlavePacket.get8();
+			DEBUG_OUTF("SLAVE_CMD_TOGGLE_MOTOR_1 t=%s,%s\r\n",t&1 ? "on" : "off",t&2 ? "forward" : "reverse");
+			break;
+			
+		}
+		case SLAVE_CMD_TOGGLE_MOTOR_2:
+		{
+			uint8_t t = mSlavePacket.get8();
+			DEBUG_OUTF("SLAVE_CMD_TOGGLE_MOTOR_2 t=%s,%s\r\n",t&1 ? "on" : "off",t&2 ? "forward" : "reverse");
+			break;
+			
+		}
+		case SLAVE_CMD_TOGGLE_FAN:
+		{
+			uint8_t t = mSlavePacket.get8();
+			DEBUG_OUTF("SLAVE_CMD_TOGGLE_FAN t=%s\r\n",t ? "on" : "off");
+			break;
+		}
+		case SLAVE_CMD_READ_FROM_EEPROM:
+		{
+			uint16_t offset = mSlavePacket.get16();
+			uint8_t count = mSlavePacket.get8();
+			DEBUG_OUTF("SLAVE_CMD_READ_FROM_EEPROM offset=%d, count=%d\r\n",offset,count);
+			for (uint8_t i=0;i<count;i++)
+				mSlaveReplyPacket.put8(0);
+			break;
+		}
+		case SLAVE_CMD_WRITE_TO_EEPROM:
+		{
+			uint16_t offset = mSlavePacket.get16();
+			uint8_t count = mSlavePacket.get8();
+			DEBUG_OUTF("SLAVE_CMD_WRITE_TO_EEPROM offset=%d, count=%d\r\n",offset,count);
+			mSlaveReplyPacket.put8(count);
+			break;
+		}
+
+	}	
+
+	while(mSlaveReplyPacket.getBytesRemaining())
+	{
+		mReplyPacket.put8(mSlaveReplyPacket.get8());
+	}
+	return true;
+#else
 	sendSlavePacket();
 	
 	if (readSlaveReply())
@@ -274,6 +412,7 @@ bool HostComm::sendSlaveQuery()
 	}
 		
 	return false;
+#endif
 }
 
 bool HostComm::readSlaveReply()
