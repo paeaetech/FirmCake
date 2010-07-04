@@ -13,6 +13,8 @@
 #include "fatfs/pff.h"
 #include "eepromConfig.h"
 #include "eeprom.h"
+#include "SDCard.h"
+
 
 HostComm hostComm;
 
@@ -221,7 +223,28 @@ void HostComm::processPacket()
 		  	case HOST_CMD_CAPTURE_TO_FILE:
 			case HOST_CMD_END_CAPTURE:
 		  	case HOST_CMD_PLAYBACK_CAPTURE:
+				break;
 			case HOST_CMD_NEXT_FILENAME:
+			{
+				uint8_t reset = mPacket.get8();
+				if (reset)
+				{
+					SDCardResponse ret = sdCard.resetScan();
+					mReplyPacket.put8(ret);
+					mReplyPacket.put8(0);
+				}
+				else
+				{
+					uint8_t buf[16];
+					SDCardResponse ret = sdCard.getNextFile(buf,sizeof(buf));
+					uint8_t* p = &buf[0];
+					mReplyPacket.put8(ret);
+					while(*p)
+						mReplyPacket.put8(*p++);
+					mReplyPacket.put8(0);
+				}
+				break;
+			}
 			case HOST_CMD_GET_DBG_REG:
 
 			case HOST_CMD_PROBE:

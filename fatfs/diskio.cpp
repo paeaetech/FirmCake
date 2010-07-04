@@ -39,7 +39,7 @@ DSTATUS disk_initialize (void)
 /*-----------------------------------------------------------------------*/
 
 DRESULT disk_readp (
-	void* dest,			/* Pointer to the destination object */
+	BYTE* dest,			/* Pointer to the destination object */
 	DWORD sector,		/* Sector number (LBA) */
 	WORD sofs,			/* Offset in the sector */
 	WORD count			/* Byte count (bit15:destination) */
