@@ -10,6 +10,7 @@
 #include "version.h"
 #include "owntypes.h"
 #include "fatfs/pff.h"
+#include "eepromConfig.h"
 #include "eeprom.h"
 
 HostComm hostComm;
@@ -39,7 +40,6 @@ void HostComm::update()
 		DEBUG_ON();
 		uint8_t b = uart0.receive();
 		lastMillis = millis();
-		DEBUG_OUTB(b);
 		
 		switch(mState)
 		{
@@ -144,13 +144,6 @@ void HostComm::processPacket()
 				}
 				break;
 			}
-			case HOST_CMD_GET_RANGE:
-			case HOST_CMD_SET_RANGE:
-			case HOST_CMD_ABORT:
-			case HOST_CMD_PAUSE:
-			case HOST_CMD_PROBE:
-
-			case HOST_CMD_IS_FINISHED:
 			case HOST_CMD_READ_EEPROM:
 			{
 				uint16_t offset = mPacket.get16();
@@ -160,13 +153,38 @@ void HostComm::processPacket()
 					mReplyPacket.setCommand(HOST_REPLY_BUFFER_OVERFLOW);
 				else
 				{
-					for (uint8_t i=0;i<count;i++)
-						mReplyPacket.put8(eeprom_read(offset+i));
+					if (!eepromConfigValid())
+					{
+						for (uint8_t i=0;i<count;i++)
+							mReplyPacket.put8(0);
+					}
+					else
+					{
+						for (uint8_t i=0;i<count;i++)
+							mReplyPacket.put8(eeprom_read(offset+i));
+					}
 				}
 				break;
 			}
 			case HOST_CMD_WRITE_EEPROM:
-			
+			{
+				uint16_t offset = mPacket.get16();
+				uint8_t count = mPacket.get8();
+				DEBUG_OUTF("write eeprom offset=%d, count=%d\r\n",offset,count);
+				for (uint8_t i=0;i<count;i++)
+				{
+					eeprom_write(offset+i,mPacket.get8());
+				}
+				mReplyPacket.put8(count);
+				break;
+			}
+			case HOST_CMD_GET_RANGE:
+			case HOST_CMD_SET_RANGE:
+			case HOST_CMD_ABORT:
+			case HOST_CMD_PAUSE:
+			case HOST_CMD_PROBE:
+
+			case HOST_CMD_IS_FINISHED:
 		  	case HOST_CMD_CAPTURE_TO_FILE:
 			case HOST_CMD_END_CAPTURE:
 		  	case HOST_CMD_PLAYBACK_CAPTURE:

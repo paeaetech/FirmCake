@@ -7,7 +7,7 @@
 #define EEPROM_CONFIG_END_BYTE 0xbe
 
 uint8_t eepromConfigValid();
-
+void eepromWriteDefaults();
 
 
 

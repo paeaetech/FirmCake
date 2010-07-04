@@ -29,11 +29,11 @@ public:
 	}
 	
 	uint16_t get16() {
-		return (uint16_t)get()+((uint16_t)get())<<8;
+		return (uint16_t)get()+(((uint16_t)get())<<8);
 	}
 
 	uint32_t get32() {
-		return (uint32_t)get16()+((uint32_t)get16())<<16;
+		return (uint32_t)get16()+(((uint32_t)get16())<<16);
 	}
 
 	void undo8()

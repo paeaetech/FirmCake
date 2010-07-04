@@ -7,6 +7,7 @@
 #include "version.h"
 #include "portAccess.h"
 
+#include "eepromConfig.h"
 #include "HostComm.h"
 #include "uart.h"
 #include "rs485.h"
@@ -17,6 +18,7 @@
 #include "utils.h"
 
 const char spBuildId[] PROGMEM = BUILD_ID;
+const char FIRMWARE_NAME[] PROGMEM = NAME " " VERSIONSTRING " " BUILD_ID "\r\n";
 
 void wdt_init(void) __attribute__((naked)) __attribute__((section(".init3")));
 
@@ -50,9 +52,21 @@ void setup()
 #endif
 	
 	initSystem();
+	if (!eepromConfigValid())
+	{
+		eepromWriteDefaults();
+	}
+	
 	DEBUG_OFF();
-	DEBUG_OUT(NAME " " VERSIONSTRING " ");
-	DEBUG_OUT(BUILD_ID);
+
+	uint8_t b;
+	uint8_t p=0;
+	while((b=pgm_read_byte(FIRMWARE_NAME+p)))
+	{
+		DEBUG_OUTB(b);
+		p++;
+	}
+	
 	sei();
 }
 

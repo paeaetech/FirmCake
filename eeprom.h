@@ -4,8 +4,8 @@
 #include <inttypes.h>
 
 
-uint8_t eeprom_read(uint8_t addr);
-void eeprom_write(uint8_t addr,uint8_t b);
+uint8_t eeprom_read(uint16_t addr);
+void eeprom_write(uint16_t addr,uint8_t b);
 
 
 
