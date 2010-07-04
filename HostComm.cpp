@@ -220,6 +220,68 @@ void HostComm::processCommandBuffer()
 		
 		switch(cmd)
 		{
+			case HOST_CMD_QUEUE_POINT_ABS:
+			{
+				if (!stepperController.isMoving())
+				{
+					int32_t x = (int32_t)mCommandBuffer.get32();
+			        int32_t y = (int32_t)mCommandBuffer.get32();
+			        int32_t z = (int32_t)mCommandBuffer.get32();
+			        uint32_t feedRate = mCommandBuffer.get32();
+
+					stepperController.moveTo(x,y,z,feedRate);
+				}
+				else
+					mCommandBuffer.undo8();
+				break;
+	      	}
+			case HOST_CMD_SET_POSITION:
+			{
+				if (!stepperController.isMoving())
+				{
+					int32_t x = (int32_t)mCommandBuffer.get32();
+			        int32_t y = (int32_t)mCommandBuffer.get32();
+			        int32_t z = (int32_t)mCommandBuffer.get32();
+
+					stepperController.setPoint(x,y,z);
+				}
+				else
+					mCommandBuffer.undo8();
+				break;
+			}
+			case HOST_CMD_FIND_AXES_MINIMUM:
+			case HOST_CMD_FIND_AXES_MAXIMUM:
+			{
+				uint8_t flags = mCommandBuffer.get8();
+				uint32_t feedRate = mCommandBuffer.get32();
+				uint16_t timeout = mCommandBuffer.get16();
+				break;
+			}
+			case HOST_CMD_DELAY:
+			{
+				uint32_t delayMs = mCommandBuffer.get32();
+				initDelayState(delayMs);
+				break;
+			}
+			case HOST_CMD_CHANGE_TOOL:
+			{
+				uint8_t tool = mCommandBuffer.get8();
+				break;
+			}
+			case HOST_CMD_WAIT_FOR_TOOL:
+			{
+				if (!stepperController.isMoving())
+				{
+					uint8_t tool = mCommandBuffer.get8();
+					uint16_t pingDelay = mCommandBuffer.get16();
+					uint32_t timeout = mCommandBuffer.get16();
+					mSlaveWaitTimeout = timeout*1000+millis();
+					mainState = STATE_WAIT_FOR_SLAVE;
+				}
+				else
+					mCommandBuffer.undo8();
+				break;
+			}
 			case HOST_CMD_TOOL_COMMAND:
 			{
 				mReplyPacket.reset();
@@ -235,6 +297,24 @@ void HostComm::processCommandBuffer()
 				        mSlavePacket.put8(mCommandBuffer.get());
 				}
 				sendSlaveQuery();
+			}
+			case HOST_CMD_ENABLE_AXES:
+			{
+				if (!stepperController.isMoving())
+				{
+					uint8_t axes = mCommandBuffer.get8();
+					bool x = axes & _BV(1);
+					bool y = axes & _BV(2);
+					bool z = axes & _BV(3);
+					bool enable = axes & 0x80;
+					if (enable)
+						stepperController.enableSteppers(x,y,z);
+					else
+						stepperController.disableSteppers(x,y,z);
+				}
+				else
+					mCommandBuffer.undo8();
+				break;
 			}
 			default:
 				break;
