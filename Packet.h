@@ -27,14 +27,14 @@ public:
 	
 	void put16(uint16_t b)
 	{
-		put8(b>>8);
 		put8(b&0xff);
+		put8(b>>8);
 	}
 	
 	void put32(uint32_t b)
 	{
-		put16(b>>16);
 		put16(b&0xffff);
+		put16(b>>16);
 	}
 	
 	uint8_t get8() 
@@ -43,12 +43,12 @@ public:
 	}
 	uint16_t get16()
 	{
-		return ((uint16_t)get8()) << 8 + get8();
+		return mBuffer.get16();
 	}
 	
 	uint32_t get32()
 	{
-		return ((uint32_t)get16()) << 16 + get16();
+		return mBuffer.get32();
 	}
 	
 	

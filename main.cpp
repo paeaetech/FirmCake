@@ -51,9 +51,8 @@ void setup()
 	
 	initSystem();
 	DEBUG_OFF();
-	DEBUG_OUT(NAME " ");
+	DEBUG_OUT(NAME " " VERSIONSTRING " ");
 	DEBUG_OUT(BUILD_ID);
-	DEBUG_OUT("\r\n");
 	sei();
 }
 

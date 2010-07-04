@@ -55,6 +55,19 @@ PORT = /dev/tty.usbserial-A6008rWu
 #PORT = /dev/tty.usbserial-A6008bOI
 ARDUINO_INSTALL = /Applications/Arduino.app/Contents/Resources/Java/hardware/
 
+
+##sanguino
+#MCU = atmega644p
+#AVRDUDE_DEVICE=m644p
+#UPLOAD_RATE = 38400
+##mega
+MCU = atmega1280
+AVRDUDE_DEVICE=m1280
+UPLOAD_RATE = 57600
+
+F_CPU = 16000000
+
+
 #### below here should be OK.
 TARGET = main
 
@@ -76,10 +89,7 @@ ARDUINO_CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/Print.cpp $(ARDUINO)/W
 
 CXXSRC = $(SOURCE)
 
-MCU = atmega1280
-F_CPU = 16000000
 FORMAT = ihex
-UPLOAD_RATE = 57600
 
 # Name of this Makefile (used for "make depend").
 MAKEFILE = Makefile
@@ -130,7 +140,6 @@ LDFLAGS = -Wl,--gc-sections -Wl,--relax
 PROGPATH = $(ARDUINO_INSTALL)/tools/avr/bin/
 
 # Programming support using avrdude. Settings and variables.
-AVRDUDE_DEVICE=m1280
 AVRDUDE_PROGRAMMER = stk500v1
 AVRDUDE_PORT = $(PORT)
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex

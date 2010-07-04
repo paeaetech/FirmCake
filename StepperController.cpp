@@ -35,7 +35,7 @@ namespace {
 	
 	uint32_t stepDelay[3];
 	uint32_t currentStepTime[3];
-	
+
 	Timer timer(STEPPER_TIMER,STEPPER_HZ);
 }
 

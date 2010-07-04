@@ -10,6 +10,7 @@
 #include "version.h"
 #include "owntypes.h"
 #include "fatfs/pff.h"
+#include "eeprom.h"
 
 HostComm hostComm;
 
@@ -106,7 +107,7 @@ void HostComm::processPacket()
 		switch((HostCommand)mPacket.getCommand())
 		{
 			case HOST_CMD_VERSION:
-				mReplyPacket.put16(VERSION);
+				mReplyPacket.put16(202); //fake version to replicatorg
 				break;
 			case HOST_CMD_INIT:
 				break;
@@ -139,7 +140,7 @@ void HostComm::processPacket()
 				if (!sendSlaveQuery())
 				{
 					mReplyPacket.reset();
-					mReplyPacket.setCommand(HOST_REPLY_ERROR);
+					mReplyPacket.setCommand(HOST_REPLY_UNSUPPORTED);
 				}
 				break;
 			}
@@ -151,6 +152,19 @@ void HostComm::processPacket()
 
 			case HOST_CMD_IS_FINISHED:
 			case HOST_CMD_READ_EEPROM:
+			{
+				uint16_t offset = mPacket.get16();
+				uint8_t count = mPacket.get8();
+				DEBUG_OUTF("read eeprom offset=%d, count=%d\r\n",offset,count);
+				if (count > 16)
+					mReplyPacket.setCommand(HOST_REPLY_BUFFER_OVERFLOW);
+				else
+				{
+					for (uint8_t i=0;i<count;i++)
+						mReplyPacket.put8(eeprom_read(offset+i));
+				}
+				break;
+			}
 			case HOST_CMD_WRITE_EEPROM:
 			
 		  	case HOST_CMD_CAPTURE_TO_FILE:
