@@ -70,7 +70,6 @@ void setup()
 	sei();
 }
 
-
 void loop()
 {
 	hostComm.update();

@@ -38,6 +38,8 @@ void clock_init()
 void reset()
 {
 	wdt_enable(WDTO_1S);
+	wdt_reset();
+	while(true) {}
 }
 
 

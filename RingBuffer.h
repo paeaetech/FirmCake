@@ -28,8 +28,12 @@ public:
 		return b;
 	}
 	
+	uint8_t get8() {
+		return get();
+	}
+
 	uint16_t get16() {
-		return (uint16_t)get()+(((uint16_t)get())<<8);
+		return (uint16_t)get8()+(((uint16_t)get8())<<8);
 	}
 
 	uint32_t get32() {

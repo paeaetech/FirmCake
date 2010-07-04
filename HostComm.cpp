@@ -47,8 +47,6 @@ void HostComm::update()
 				{
 					mState=PACKET_LEN;
 					mPacket.reset();
-					mReplyPacket.reset();
-					mReplyPacket.setCommand(HOST_REPLY_OK);
 				}
 				break;
 			case PACKET_LEN:
@@ -81,7 +79,6 @@ void HostComm::update()
 
 void HostComm::copyPacketTo(Packet& rPacket,Packet &rDestPacket)
 {
-	rDestPacket.reset();
 	while(rPacket.getBytesRemaining())
 	{
 		rDestPacket.put8(rPacket.get8());
@@ -90,6 +87,9 @@ void HostComm::copyPacketTo(Packet& rPacket,Packet &rDestPacket)
 
 void HostComm::processPacket()
 {
+	mReplyPacket.reset();
+	mReplyPacket.setCommand(HOST_REPLY_OK);
+	
 	mPacket.setCommand(mPacket.get8());
 	bool isCommand = mPacket.getCommand() & 0x80;
 	
@@ -137,6 +137,7 @@ void HostComm::processPacket()
 			}
 			case HOST_CMD_RESET:
 				DEBUG_OUT("CMD_RESET\r\n");
+				sendReply();
 				reset();
 				break;
 
@@ -205,8 +206,9 @@ void HostComm::processPacket()
 				mReplyPacket.setCommand(HOST_REPLY_UNSUPPORTED);
 				break;
 		}
-		sendReply();
 	}
+	sendReply();
+
 }
 
 void HostComm::processCommandBuffer()
@@ -226,14 +228,12 @@ void HostComm::processCommandBuffer()
 				mSlavePacket.reset();
 				mSlavePacket.put8(mCommandBuffer.get()); //tool id
 				mSlavePacket.put8(mCommandBuffer.get()); //command
-				for (uint8_t i=0;i<mCommandBuffer.get();i++)
+				uint8_t len = mCommandBuffer.get();
+				for (uint8_t i=0;i<len;i++)
 				{
-					mSlavePacket.put8(mCommandBuffer.get());
+				        mSlavePacket.put8(mCommandBuffer.get());
 				}
-//				sendSlavePacket();
-//				readSlaveReply();
 				sendSlaveQuery();
-				sendReply();
 			}
 			default:
 				break;
@@ -245,6 +245,7 @@ void HostComm::processCommandBuffer()
 
 void HostComm::sendReply()
 {
+	DEBUG_OUTF("Sending reply code %d\r\n",mReplyPacket.getCommand());
 	uint8_t crc=_crc_ibutton_update(0,mReplyPacket.getCommand());
 	uart0.send(PACKET_START_BYTE);
 	uart0.send(mReplyPacket.getBytesRemaining()+1);
@@ -279,7 +280,7 @@ void HostComm::sendSlavePacket()
 
 
 
-//#define FAKE_SLAVE
+#define FAKE_SLAVE
 
 bool HostComm::sendSlaveQuery()
 {
@@ -394,20 +395,14 @@ bool HostComm::sendSlaveQuery()
 
 	}	
 
-	while(mSlaveReplyPacket.getBytesRemaining())
-	{
-		mReplyPacket.put8(mSlaveReplyPacket.get8());
-	}
+	copyPacketTo(mSlaveReplyPacket,mReplyPacket);
 	return true;
 #else
 	sendSlavePacket();
 	
 	if (readSlaveReply())
 	{
-		while(mSlaveReplyPacket.getBytesRemaining())
-		{
-			mReplyPacket.put8(mSlaveReplyPacket.get8());
-		}
+		copyPacketTo(mSlaveReplyPacket,mReplyPacket);
 		return true;
 	}
 		
@@ -455,6 +450,7 @@ bool HostComm::readSlaveReply()
 		
 		if (millis() > curTime+SLAVE_TIMEOUT)
 		{
+			DEBUG_OUT("SLAVE TIMEOUT\r\n");
 			return false;
 		}
 		
