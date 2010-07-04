@@ -4,7 +4,6 @@
 #include "config.h"
 #include "Timer.h"
 
-#ifdef USE_STEPPERS
 
 #define STEPPER_HZ 100000
 
@@ -157,4 +156,3 @@ void StepperController::doISR()
 	}
 }
 
-#endif

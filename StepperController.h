@@ -33,9 +33,7 @@ protected:
 	
 };
 
-#ifdef USE_STEPPERS
 extern StepperController stepperController;
-#endif
 
 
 

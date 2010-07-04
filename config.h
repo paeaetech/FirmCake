@@ -3,13 +3,20 @@
 
 #include <avr/io.h>
 
-
 //generic definitions
 #define STEPPER_TYPE_GEN3 0
 #define STEPPER_TYPE_MICROSTEP 1
 
-#define EXTRUDER_TYPE_GEN3 0
+#define MACHINE_TYPE_GEN3 0
+#define MACHINE_TYPE_PAEAE 1
 
+#if defined(__AVR_ATmega1280__)
+#define MACHINE_TYPE 1 //paeae
+#elif defined(__AVR_ATmega644P__) //sanguino
+#define MACHINE_TYPE 0
+#else
+#error Machine type unsupported
+#endif
 
 #define DEBUG
 
@@ -26,16 +33,13 @@
 #define CLOCK_TIMER 1
 
 
-#if defined(__AVR_ATmega1280__)
+#if MACHINE_TYPE == 1
 
 	#define CLOCK_TIMER 1
 	#define STEPPER_TIMER 5
 	#define NUM_UARTS 4
 	#define HOST_UART 0
 	//feature definitions
-	#define USE_RS485
-	#define USE_STEPPERS
-	#define USE_EXTRUDER_TOOL
 	#define USE_SDCARD
 	#define USE_LCD
 	#define USE_PSU
@@ -44,21 +48,15 @@
 	#define DEBUG_PORT PORTB
 	#define DEBUG_PIN PB0
 
-	#ifdef USE_RS485
 	#define RS485_PORT_IE PORTD
 	#define RS485_PORT_OE PORTD
 	#define RS485_PIN_IE PD0
 	#define RS485_PIN_OE PD1
 	#define RS485_UART 1
 	#define RS485_BAUDRATE 38400
-	#endif
-
-	#ifdef USE_EXTRUDER_TOOL
-	#define EXTRUDER_TYPE EXTRUDER_TYPE_GEN3
-	#endif
 
 
-	#ifdef USE_STEPPERS
+
 	#define STEPPER_TYPE STEPPER_TYPE_GEN3
 
 	//#define STEPPERX_DISABLE_INACTIVE
@@ -99,7 +97,6 @@
 	#define STEPPERZ_MAX_PORT PORTA
 	#define STEPPERZ_MAX_PIN PA4
 
-	#endif
 
 	#ifdef USE_SDCARD
 
@@ -116,7 +113,7 @@
 	#endif
 
 
-#elif defined(__AVR_ATmega644P__) //gen3 sanguino
+#elif MACHINE_TYPE == 0 //gen3 sanguino
 
 	#define CLOCK_TIMER 1
 	#define STEPPER_TIMER 5
@@ -124,9 +121,6 @@
 	#define HOST_UART 0
 	
 	//feature definitions
-	#define USE_RS485
-	#define USE_STEPPERS
-	#define USE_EXTRUDER_TOOL
 	#define USE_SDCARD
 //	#define USE_LCD
 	#define USE_PSU
@@ -136,21 +130,14 @@
 	#define DEBUG_PIN PB0
 
 
-	#ifdef USE_RS485
 	#define RS485_PORT_IE PORTD
 	#define RS485_PORT_OE PORTD
 	#define RS485_PIN_IE PD5
 	#define RS485_PIN_OE PD4
 	#define RS485_UART 1
 	#define RS485_BAUDRATE 38400
-	#endif
-
-	#ifdef USE_EXTRUDER_TOOL
-	#define EXTRUDER_TYPE EXTRUDER_TYPE_GEN3
-	#endif
 
 
-	#ifdef USE_STEPPERS
 	#define STEPPER_TYPE STEPPER_TYPE_GEN3
 
 	//#define STEPPERX_DISABLE_INACTIVE
@@ -191,7 +178,6 @@
 	#define STEPPERZ_MAX_PORT PORTA
 	#define STEPPERZ_MAX_PIN PA0
 
-	#endif
 
 	#ifdef USE_SDCARD
 

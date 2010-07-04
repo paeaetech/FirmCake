@@ -32,14 +32,14 @@ void wdt_init()
 
 void initSystem()
 {
-#ifdef USE_STEPPERS
 	stepperController.setPoint(0,0,0);
-#endif
 }
 
 void setup()
 {
-	DDR(DEBUG_PORT) |= _BV(DEBUG_PIN);
+	DDRB |= _BV(PB0);
+	
+//	DDR(DEBUG_PORT) |= _BV(DEBUG_PIN);
 	DEBUG_ON();
 	
 #ifdef USE_PSU
@@ -87,9 +87,7 @@ void loop()
 			break;
 	}
 
-#ifdef USE_STEPPERS
 	stepperController.update();
-#endif
 
 }
 

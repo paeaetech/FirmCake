@@ -18,9 +18,7 @@ private:
 		
 };
 
-#ifdef USE_RS485
 extern RS485 rs485;
-#endif
 
 
 #endif /* end of include guard: RS485_H_H86QACKG */

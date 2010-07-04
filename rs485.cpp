@@ -4,8 +4,6 @@
 #include "portAccess.h"
 #include "uart.h"
 
-#ifdef USE_RS485
-
 
 RS485 rs485(RS485_UART,RS485_BAUDRATE);
 
@@ -33,6 +31,4 @@ void RS485::send(const uint8_t* buf,uint8_t size)
 	UART::send(buf,size);
 	end();
 }
-
-#endif
 

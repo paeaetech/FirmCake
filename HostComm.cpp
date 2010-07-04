@@ -472,7 +472,6 @@ bool HostComm::readSlaveReply()
 			DEBUG_OUT("SLAVE TIMEOUT\r\n");
 			return false;
 		}
-		
 	}
 	
 }
