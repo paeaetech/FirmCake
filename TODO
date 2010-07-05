@@ -1,0 +1,8 @@
+
+TODO stuff:
+
+* 8-bit timers (sanguino has only 1 16bit timer)
+* test SD card read/write, fat12,fat16 and fat32
+* test stepper controller
+* implement microstepping support (with microstep resolution config)
+* put config in eeprom
