@@ -6,3 +6,8 @@ TODO stuff:
 * test stepper controller
 * implement microstepping support (with microstep resolution config)
 * put config in eeprom
+
+ideas:
+
+* maybe subclass Packet from RingBuffer
+* axis processing order
