@@ -15,6 +15,9 @@
 #include "eeprom.h"
 #include "SDCard.h"
 
+#if PROTOCOL_INTERPRETER == PROTOCOL_GCODE
+#include "GCodeParser.h"
+#endif
 
 HostComm hostComm;
 
@@ -40,6 +43,7 @@ void HostComm::update()
 	
 	while(uart0.available())
 	{
+#if PROTOCOL_INTERPRETER == PROTOCOL_SANGUINO3G
 		DEBUG_ON();
 		uint8_t b = uart0.receive();
 		lastMillis = millis();
@@ -77,6 +81,20 @@ void HostComm::update()
 				break;
 		}
 		DEBUG_OFF();
+#elif PROTOCOL_INTERPRETER == PROTOCOL_GCODE
+		DEBUG_ON();
+		uint8_t b = uart0.receive();
+		if (gcodeParser.processByte(b))
+		{
+			mPacket.reset();
+			if (gcodeParser.getPacket(mPacket))
+				processPacket();
+		}
+		DEBUG_OFF();
+#else
+#error invalid protocol selected
+#endif
+		
 	}
 }
 

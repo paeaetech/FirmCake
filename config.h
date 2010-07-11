@@ -10,6 +10,10 @@
 #define MACHINE_TYPE_GEN3 0
 #define MACHINE_TYPE_PAEAE 1
 
+#define PROTOCOL_SANGUINO3G 0
+#define PROTOCOL_GCODE 1
+
+
 #if defined(__AVR_ATmega1280__)
 #define MACHINE_TYPE 1 //paeae
 #elif defined(__AVR_ATmega644P__) //sanguino
@@ -21,6 +25,9 @@
 #define DEBUG
 #define DEBUG_FAKE_SLAVE
 
+//0 = sanguino3g
+//1 = gcode
+#define PROTOCOL_INTERPRETER PROTOCOL_GCODE
 
 #define HOST_BAUDRATE 38400
 #define HOST_RECEIVE_BUFFER_SIZE 32

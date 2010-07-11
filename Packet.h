@@ -3,6 +3,7 @@
 
 #include <inttypes.h>
 #include "RingBuffer.h"
+#include "owntypes.h"
 
 class Packet
 {
@@ -37,6 +38,13 @@ public:
 		put16(b>>16);
 	}
 	
+	void putPoint(Point& rPoint)
+	{
+		put32((uint32_t)rPoint.x);
+		put32((uint32_t)rPoint.y);
+		put32((uint32_t)rPoint.z);
+	}
+	
 	uint8_t get8() 
 	{
 		return mBuffer.get();
@@ -49,6 +57,13 @@ public:
 	uint32_t get32()
 	{
 		return mBuffer.get32();
+	}
+	
+	void getPoint(Point &rPoint)
+	{
+		rPoint.x = (int32_t)get32();
+		rPoint.y = (int32_t)get32();
+		rPoint.z = (int32_t)get32();
 	}
 	
 	

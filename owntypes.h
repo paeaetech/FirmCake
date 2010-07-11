@@ -10,6 +10,19 @@ struct Point {
 	
 	Point() : x(0),y(0),z(0) {}
 	Point(int32_t _x,int32_t _y,int32_t _z) : x(_x), y(_y), z(_z) {}
+	
+	void set(Point &rB) 
+	{
+		x = rB.x;
+		y = rB.y;
+		z = rB.z;
+	}
+	void zero()
+	{
+		x = 0; 
+		y = 0; 
+		z = 0;
+	}
 };
 
 
