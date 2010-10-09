@@ -4,8 +4,15 @@
 FirmCake - Firmware for makerbot gen 3 compatible electronics
 =============================================================
 
-Actually, current code mostly focuses on Arduino Mega electronics which is being developed by me, but I try to keep things 
-easily portable to current gen3 hw.
+Actually, current code mostly focuses on Arduino Mega electronics which is being developed by me, 
+but I try to keep things easily portable to current gen3 hw.
 
 Hardware designs will be released when the prototype is ready.
 
+
+(planned) FEATURES
+==================
+
+* 100% protocol compatible with original gen3 firmware
+* supports both GCode and S3G formats
+* SDCard supports fat12/16/32
