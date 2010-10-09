@@ -4,7 +4,7 @@
 #include "config.h"
 #include "uart.h"
 #include "portAccess.h"
-
+#include "utils.h"
 #ifndef F_CPU
 #error F_CPU not defined
 #endif
@@ -17,6 +17,10 @@ namespace {
 	{
 		return F_CPU/16/baud-1;
 	}	
+
+	
+	UART* uartInstance[NUM_UARTS];
+}
 
 #if defined(__AVR_ATmega1280__) //mega
 	volatile uint8_t* portUDR[NUM_UARTS] = { 
@@ -56,9 +60,8 @@ namespace {
 #else
 #error UART doesnt support current cpu
 #endif
-	
-	UART* uartInstance[NUM_UARTS];
-}
+
+
 
 
 ISR(USART0_RX_vect)
@@ -85,32 +88,15 @@ ISR(USART3_RX_vect)
 #endif
 
 
-#define UDRn *(volatile uint8_t*)(portUDR[mUartNum])
-#define UBRRnH *(volatile uint8_t*)((&UDRn)-1)
-#define UBRRnL *(volatile uint8_t*)((&UDRn)-2)
-#define UCSRnC *(volatile uint8_t*)((&UDRn)-4)
-#define UCSRnB *(volatile uint8_t*)((&UDRn)-5)
-#define UCSRnA *(volatile uint8_t*)((&UDRn)-6)
-
-#define RXEN RXEN0
-#define TXEN TXEN0
-#define UDRE UDRE0
-#define TXC TXC0
-#define RXCIE RXCIE0
-#define UCSZ2 UCSZ02
-#define UCSZ1 UCSZ01
-#define UCSZ0 UCSZ00
-
-#define WAIT_SEND while(!(UCSRnA & _BV(UDRE))) {}
-
 
 UART::UART(uint8_t uartNum,uint16_t baudRate)
- : mRingBuffer(mBuffer,UART_RECEIVE_BUFFER),
+ : mRingBuffer(mBuffer,UART_RECEIVE_BUFFER_SIZE),
    mUartNum(uartNum), 
    mBaudrate(baudRate)
 {
 	uartInstance[uartNum] = this;
 	uint16_t ubrr = calcUBRR(mBaudrate);
+
 	UBRRnH = ubrr>>8;
 	UBRRnL = ubrr;
 	UCSRnB = _BV(RXEN) | _BV(TXEN) | _BV(RXCIE);
@@ -118,12 +104,12 @@ UART::UART(uint8_t uartNum,uint16_t baudRate)
 	
 	//set tx pin as output
 	*portDDR[uartNum] |= portTxPin[uartNum];
+	
 }
 
 void UART::send(uint8_t b)
 {
 	WAIT_SEND;
-	
 	UDRn = b;
 }
 
@@ -133,6 +119,7 @@ void UART::send(const uint8_t* b,uint8_t size)
 	{
 		send(*b++);
 	}
+
 }
 
 uint8_t UART::receive()
