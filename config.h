@@ -141,8 +141,8 @@
 
 
 	//port/pin  definitions go here
-	#define LED_PORT PORTD
-	#define LED_PIN PD0
+	#define LED_PORT PORTB
+	#define LED_PIN PB0
 
 
 	#define RS485_PORT_IE PORTD

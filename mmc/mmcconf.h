@@ -25,9 +25,15 @@
 // define to enable debugging print statements
 //#define MMC_DEBUG
 
+#elif defined(__AVR_ATmega644P__) //sanguino
 // MMC card chip select pin defines
 #define MMC_CS_PORT			PORTB
 #define MMC_CS_DDR			DDRB
+#define MMC_CS_PIN			4
+#elif defined(__AVR_ATmega1280__) //mega
+#define MMC_CS_PORT			PORTB
+#define MMC_CS_DDR			DDRB
 #define MMC_CS_PIN			0
+#endif
 
 #endif
