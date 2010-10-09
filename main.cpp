@@ -16,6 +16,7 @@
 #include "psu.h"
 #include "mmc/mmc.h"
 #include "utils.h"
+#include "fpmath.h"
 
 const char spBuildId[] PROGMEM = BUILD_ID;
 const char FIRMWARE_NAME[] PROGMEM = NAME " " VERSIONSTRING " " BUILD_ID "\r\n";
@@ -35,18 +36,17 @@ void initSystem()
 	stepperController.setPoint(0,0,0);
 }
 
+
+
 void setup()
 {
-	DDRB |= _BV(PB0);
+	DDR(LED_PORT) |= _BV(LED_PIN);
 	
-//	DDR(DEBUG_PORT) |= _BV(DEBUG_PIN);
-	DEBUG_ON();
-	
-#ifdef USE_PSU
-	psu_init();
-#endif
 	clock_init();
-	
+
+	fpinit();
+
+	LED_ON();
 #ifdef USE_SDCARD
 	mmcInit();
 #endif
@@ -56,9 +56,7 @@ void setup()
 	{
 		eepromWriteDefaults();
 	}
-	
-	DEBUG_OFF();
-
+/*	
 	uint8_t b;
 	uint8_t p=0;
 	while((b=pgm_read_byte(FIRMWARE_NAME+p)))
@@ -66,12 +64,20 @@ void setup()
 		DEBUG_OUTB(b);
 		p++;
 	}
+*/
+#ifdef USE_PSU
+	psu_init();
+#endif
+	LED_OFF();
 	
 	sei();
 }
 
+
+
 void loop()
 {
+
 	hostComm.update();
 
 	switch(mainState)

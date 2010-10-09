@@ -44,7 +44,7 @@ void HostComm::update()
 	while(uart0.available())
 	{
 #if PROTOCOL_INTERPRETER == PROTOCOL_SANGUINO3G
-		DEBUG_ON();
+		LED_ON();
 		uint8_t b = uart0.receive();
 		lastMillis = millis();
 		switch(mState)
@@ -80,9 +80,9 @@ void HostComm::update()
 				mState = WAIT_PACKET;
 				break;
 		}
-		DEBUG_OFF();
+		LED_OFF();
 #elif PROTOCOL_INTERPRETER == PROTOCOL_GCODE
-		DEBUG_ON();
+		LED_ON();
 		uint8_t b = uart0.receive();
 		if (gcodeParser.processByte(b))
 		{
@@ -90,7 +90,7 @@ void HostComm::update()
 			if (gcodeParser.getPacket(mPacket))
 				processPacket();
 		}
-		DEBUG_OFF();
+		LED_OFF();
 #else
 #error invalid protocol selected
 #endif
@@ -291,6 +291,7 @@ void HostComm::processCommandBuffer()
 			        int32_t y = (int32_t)mCommandBuffer.get32();
 			        int32_t z = (int32_t)mCommandBuffer.get32();
 			        uint32_t feedRate = mCommandBuffer.get32();
+					DEBUG_OUTF("HOST_CMD_QUEUE_POINT_ABS %f %f %f %f\r\n",x,y,z,feedRate);
 
 					stepperController.moveTo(x,y,z,feedRate);
 				}
@@ -305,6 +306,7 @@ void HostComm::processCommandBuffer()
 					int32_t x = (int32_t)mCommandBuffer.get32();
 			        int32_t y = (int32_t)mCommandBuffer.get32();
 			        int32_t z = (int32_t)mCommandBuffer.get32();
+					DEBUG_OUTF("HOST_CMD_SET_POSITION %f %f %f\r\n",x,y,z);
 
 					stepperController.setPoint(x,y,z);
 				}
@@ -323,6 +325,7 @@ void HostComm::processCommandBuffer()
 			case HOST_CMD_DELAY:
 			{
 				uint32_t delayMs = mCommandBuffer.get32();
+				DEBUG_OUTF("HOST_CMD_DELAY %f\r\n",delayMs);
 				initDelayState(delayMs);
 				break;
 			}
@@ -370,6 +373,7 @@ void HostComm::processCommandBuffer()
 					bool y = axes & _BV(2);
 					bool z = axes & _BV(3);
 					bool enable = axes & 0x80;
+					DEBUG_OUTF("HOST_CMD_ENABLE_AXES %s %s%s%s\r\n",enable ? "enable" : "disable",x ? "X":"",y ? "y" : "",z ? "z" : "");
 					if (enable)
 						stepperController.enableSteppers(x,y,z);
 					else

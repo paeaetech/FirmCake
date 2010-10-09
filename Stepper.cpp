@@ -2,7 +2,7 @@
 
 #include "Stepper.h"
 #include "portAccess.h"
-
+#include "config.h"
 
 #define ABS(x) (x < 0 ? -x : x)
 
@@ -47,9 +47,23 @@ void Stepper::setDirectionPositive(bool v)
 		PINP(mpDirPort) &= ~mDirPin;
 }
 
+void Stepper::setCurrentStep(int32_t step)
+{
+#if STEPPER_TYPE == STEPPER_TYPE_MICROSTEP
+	mCurrentStep = step * STEPPER_MICROSTEPS;
+#else
+	mTargetStep = step;
+#endif
+}
+
 void Stepper::setTargetStep(int32_t step)
 {
+#if STEPPER_TYPE == STEPPER_TYPE_MICROSTEP
+	mTargetStep = step * STEPPER_MICROSTEPS;
+#else
 	mTargetStep = step;
+#endif
+
 	mDeltaSteps = mTargetStep - mCurrentStep;
 	setDirectionPositive(mDeltaSteps >= 0);
 	mDeltaSteps = ABS(mDeltaSteps);

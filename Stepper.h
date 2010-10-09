@@ -2,6 +2,7 @@
 #define STEPPER_H_T5YBUFNN
 
 #include <inttypes.h>
+#include "config.h"
 
 class Stepper
 {
@@ -16,10 +17,15 @@ public:
 	void disable() { setEnabled(false); }
 	
 	virtual void reset() { mCurrentStep = 0; mTargetStep = 0; mDeltaSteps = 0; }
-	
-	int32_t getCurrentStep() const { return mCurrentStep; }
-	int32_t getTargetStep() const { return mTargetStep; }
-	virtual void setCurrentStep(int32_t step) { mCurrentStep = step; }
+
+#if STEPPER_TYPE == STEPPER_TYPE_MICROSTEP	
+	virtual int32_t getCurrentStep() { return mCurrentStep / STEPPER_MICROSTEPS; }
+	virtual int32_t getTargetStep() { return mTargetStep / STEPPER_MICROSTEPS; }
+#else
+	virtual int32_t getCurrentStep() { return mCurrentStep; }
+	virtual int32_t getTargetStep() { return mTargetStep; }
+#endif
+	virtual void setCurrentStep(int32_t step);
 	virtual void setTargetStep(int32_t step); 
 
 	int32_t getDeltaSteps() const { return mDeltaSteps; }
@@ -53,8 +59,6 @@ protected:
 	int32_t mCurrentStep;
 	int32_t mTargetStep;
 	int32_t mDeltaSteps;
-
-
 
 }; 
 

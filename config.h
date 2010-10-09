@@ -22,8 +22,8 @@
 #error Machine type unsupported
 #endif
 
-#define DEBUG
-#define DEBUG_FAKE_SLAVE
+//#define DEBUG
+//#define DEBUG_FAKE_SLAVE
 
 //0 = sanguino3g
 //1 = gcode
@@ -52,10 +52,11 @@
 	#define USE_SDCARD
 	#define USE_LCD
 	#define USE_PSU
+	
 
 	//port/pin  definitions go here
-	#define DEBUG_PORT PORTB
-	#define DEBUG_PIN PB0
+	#define LED_PORT PORTD
+	#define LED_PIN PD0
 
 	#define RS485_PORT_IE PORTD
 	#define RS485_PORT_OE PORTD
@@ -67,6 +68,9 @@
 
 
 	#define STEPPER_TYPE STEPPER_TYPE_GEN3
+	#if STEPPER_TYPE == STEPPER_TYPE_MICROSTEP
+		#define STEPPER_MICROSTEPS 16
+	#endif
 
 	//#define STEPPERX_DISABLE_INACTIVE
 	//#define STEPPERY_DISABLE_INACTIVE
@@ -134,9 +138,11 @@
 //	#define USE_LCD
 	#define USE_PSU
 
+
+
 	//port/pin  definitions go here
-	#define DEBUG_PORT PORTB
-	#define DEBUG_PIN PB0
+	#define LED_PORT PORTD
+	#define LED_PIN PD0
 
 
 	#define RS485_PORT_IE PORTD
@@ -153,7 +159,6 @@
 	//#define STEPPERY_DISABLE_INACTIVE
 	#define STEPPERZ_DISABLE_INACTIVE
 
-	//currently stepper has all pins in same port
 	#define STEPPERX_STEP_PORT PORTD
 	#define STEPPERX_STEP_PIN PD7
 	#define STEPPERX_DIR_PORT PORTC

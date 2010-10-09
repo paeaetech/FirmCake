@@ -12,8 +12,8 @@ void reset();
 
 void clock_callback();
 
-#define DEBUG_ON() PINB|=_BV(PB0)  //PIN(DEBUG_PORT) |= _BV(DEBUG_PIN);
-#define DEBUG_OFF() PINB&=~_BV(PB0) //PIN(DEBUG_PORT) &= ~_BV(DEBUG_PIN);
+#define LED_ON() PIN(LED_PORT)|=_BV(LED_PIN)  //PIN(DEBUG_PORT) |= _BV(DEBUG_PIN);
+#define LED_OFF() PIN(LED_PORT)&=~_BV(LED_PIN) //PIN(DEBUG_PORT) &= ~_BV(DEBUG_PIN);
 
 #ifdef DEBUG
 #include <stdio.h>
