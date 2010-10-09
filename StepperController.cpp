@@ -142,6 +142,33 @@ void StepperController::update()
 
 void StepperController::doISR()
 {
+	//HACK: move z axis first if it needs to be moved to the head does not try to go through the object
+	//essentially the host software should split the move into two commands, move z and move xy after
+	if (steppers[3].needStepping())
+	{
+		currentStepTime[3]--;
+		if (currentStepTime[3] == 0)
+		{
+			steppers[3].doStep();
+			currentStepTime[3] = stepDelay[3];
+		}
+	}
+	else
+	{
+		for (int i=0;i<2;i++)
+		{
+			if (steppers[i].needStepping())
+			{
+				currentStepTime[i]--;
+				if (currentStepTime[i] == 0)
+				{
+					steppers[i].doStep();
+					currentStepTime[i] = stepDelay[i];
+				}
+			}
+		}
+	}
+#if 0
 	for (uint8_t i=0;i<3;i++)
 	{
 		if (steppers[i].needStepping())
@@ -154,5 +181,6 @@ void StepperController::doISR()
 			}
 		}
 	}
+#endif
 }
 
