@@ -12,12 +12,12 @@ void psu_init()
 
 void psu_on()
 {
-	PIN(PSU_PORT) &= ~_BV(PSU_PIN);
+	PORT(PSU_PORT) &= ~_BV(PSU_PIN);
 }
 
 void psu_off()
 {
-	PIN(PSU_PORT) |= _BV(PSU_PIN);
+	PORT(PSU_PORT) |= _BV(PSU_PIN);
 }
 
 

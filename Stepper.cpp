@@ -32,9 +32,9 @@ Stepper::Stepper(volatile uint8_t *stepPort,uint8_t stepPin,
 void Stepper::setEnabled(bool v)
 {
 	if (v)
-		PINP(mpEnPort) |= mEnPin;
+		PORTP(mpEnPort) |= mEnPin;
 	else
-		PINP(mpEnPort) &= ~mEnPin;
+		PORTP(mpEnPort) &= ~mEnPin;
 }
 
 void Stepper::setDirectionPositive(bool v)
@@ -42,9 +42,9 @@ void Stepper::setDirectionPositive(bool v)
 	mbDirectionPositive = mbInverted ? !v : v;
 
 	if (mbDirectionPositive)
-		PINP(mpDirPort) |= mDirPin;
+		PORTP(mpDirPort) |= mDirPin;
 	else
-		PINP(mpDirPort) &= ~mDirPin;
+		PORTP(mpDirPort) &= ~mDirPin;
 }
 
 void Stepper::setCurrentStep(int32_t step)
@@ -76,8 +76,8 @@ void Stepper::setTargetStep(int32_t step)
 void Stepper::doStep()
 {
 	mCurrentStep += mbDirectionPositive ? 1 : -1;
-	PINP(mpStepPort) |= mStepPin;
-	PINP(mpStepPort) &= ~mStepPin;
+	PORTP(mpStepPort) |= mStepPin;
+	PORTP(mpStepPort) &= ~mStepPin;
 }
 
 

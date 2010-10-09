@@ -17,12 +17,12 @@ RS485::RS485(uint8_t uartNum,uint16_t baudRate)
 
 void RS485::start()
 {
-	PIN(RS485_PORT_OE) |= _BV(RS485_PIN_OE);
+	PORT(RS485_PORT_OE) |= _BV(RS485_PIN_OE);
 }
 
 void RS485::end()
 {
-	PIN(RS485_PORT_OE) &= ~_BV(RS485_PIN_OE);
+	PORT(RS485_PORT_OE) &= ~_BV(RS485_PIN_OE);
 }
 
 void RS485::send(const uint8_t* buf,uint8_t size)
