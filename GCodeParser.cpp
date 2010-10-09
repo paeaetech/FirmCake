@@ -2,6 +2,7 @@
 #include "config.h"
 #include "GCodeParser.h"
 #include "Commands.h"
+#include "utils.h"
 #include <stdlib.h>
 
 namespace {
@@ -95,6 +96,9 @@ bool GCodeParser::processByte(uint8_t b)
 			if (mCodePos == 0)
 				return false;
 			mCodeBuffer[mCodePos]='\0';
+			DEBUG_OUTF("gcode line:\r\n");
+			DEBUG_OUT(mCodeBuffer);
+			DEBUG_OUT("\r\n");
 			return true;
 		default:
 			if (mCodePos < GCODE_BUFFER_SIZE-1)
@@ -115,6 +119,7 @@ bool GCodeParser::getPacket(Packet& rPacket)
 			case 0:
 			case 1: //linear motion
 			{
+				DEBUG_OUTF("G%d\r\n",getCodeInt());
 				Point p;
 				getCoordinates(p);
 				uint32_t feedRate = mPreviousFeedrate;

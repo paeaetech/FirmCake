@@ -49,21 +49,21 @@
 #### 
 #### EDIT THESE VALUES
 ####
-#PORT = /dev/tty.usbserial-FTF0GOUU 
-PORT = /dev/tty.usbserial-A6008rWu
+PORT = /dev/tty.usbserial-FTF0GOUU 
+#PORT = /dev/tty.usbserial-A6008rWu
 #PORT = /dev/tty.usbserial-A6007y8D
 #PORT = /dev/tty.usbserial-A6008bOI
 ARDUINO_INSTALL = /Applications/Arduino.app/Contents/Resources/Java/hardware/
 
 
 ##sanguino
-#MCU = atmega644p
-#AVRDUDE_DEVICE=m644p
-#UPLOAD_RATE = 38400
+MCU = atmega644p
+AVRDUDE_DEVICE=m644p
+UPLOAD_RATE = 38400
 ##mega
-MCU = atmega1280
-AVRDUDE_DEVICE=m1280
-UPLOAD_RATE = 57600
+#MCU = atmega1280
+#AVRDUDE_DEVICE=m1280
+#UPLOAD_RATE = 57600
 
 F_CPU = 16000000
 
@@ -73,7 +73,10 @@ TARGET = main
 
 FATFS = fatfs/pff.cpp fatfs/diskio.cpp 
 MMC = mmc/mmc.cpp mmc/spi.cpp
-SOURCE = main.cpp eeprom.cpp uart.cpp rs485.cpp eepromConfig.cpp Stepper.cpp SDCard.cpp StepperController.cpp GCodeParser.cpp Timer.cpp psu.cpp HostComm.cpp utils.cpp State.cpp $(FATFS) $(MMC)
+SOURCE = main.cpp eeprom.cpp uart.cpp rs485.cpp eepromConfig.cpp \
+		Stepper.cpp SDCard.cpp StepperController.cpp GCodeParser.cpp \
+		Timer.cpp psu.cpp HostComm.cpp utils.cpp State.cpp fpmath.cpp \
+		$(FATFS) $(MMC)
 
 
 LIBRARIES :=
