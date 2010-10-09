@@ -243,6 +243,7 @@ void HostComm::processPacket()
 		  	case HOST_CMD_PLAYBACK_CAPTURE:
 				break;
 			case HOST_CMD_NEXT_FILENAME:
+#ifdef USE_SDCARD
 			{
 				uint8_t reset = mPacket.get8();
 				if (reset)
@@ -263,6 +264,7 @@ void HostComm::processPacket()
 				}
 				break;
 			}
+#endif
 			case HOST_CMD_GET_DBG_REG:
 
 			case HOST_CMD_PROBE:
@@ -393,6 +395,7 @@ void HostComm::processCommandBuffer()
 
 void HostComm::sendReply()
 {
+	LED_ON();
 	DEBUG_OUTF("Sending reply code %d\r\n",mReplyPacket.getCommand());
 	uint8_t crc=_crc_ibutton_update(0,mReplyPacket.getCommand());
 	uart0.send(PACKET_START_BYTE);
@@ -405,14 +408,17 @@ void HostComm::sendReply()
 		uart0.send(b);
 	}
 	uart0.send(crc);
+	LED_OFF();
 }
 
 void HostComm::sendReply(HostReply r)
 {
+	LED_ON();
 	uart0.send(PACKET_START_BYTE);
 	uart0.send(1); //length
 	uart0.send((uint8_t)r);
 	uart0.send(_crc_ibutton_update(0,r));
+	LED_OFF();
 }
 
 void HostComm::sendSlavePacket()
