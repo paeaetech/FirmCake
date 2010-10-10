@@ -5,21 +5,22 @@
 #include "Timer.h"
 #include "utils.h"
 namespace {
+
 #define CS0 CS00
 #define CS1 CS01
 #define CS2 CS02
 #define TOIE TOIE0
 	
 #if defined(__AVR_ATmega1280__) //mega
-	volatile uint8_t* timerTCCRnA[] = { 0, &TCCR1A, 0,&TCCR3A, &TCCR4A, &TCCR5A };
-	volatile uint8_t* timerMSK[] = {0, &TIMSK1, 0, &TIMSK3, &TIMSK4, &TIMSK5 };
+	volatile uint8_t* timerTCCRnA[] = { &TCCR0A, &TCCR1A, &TCCR2A,&TCCR3A, &TCCR4A, &TCCR5A };
+	volatile uint8_t* timerMSK[] = {&TIMSK0, &TIMSK1, &TIMSK2, &TIMSK3, &TIMSK4, &TIMSK5 };
 
 	const uint16_t prescalers[] = { 1,8,64,256,1024 };
 	const uint8_t prescalerFlags[] = { _BV(CS0), _BV(CS1), _BV(CS0)|_BV(CS1), _BV(CS2), _BV(CS2)|_BV(CS0) };
 	Timer* timers[6];
 #elif defined(__AVR_ATmega644P__) //sanguino
-	volatile uint8_t* timerTCCRnA[] = { 0, &TCCR1A };
-	volatile uint8_t* timerMSK[] = {0, &TIMSK1 };
+	volatile uint8_t* timerTCCRnA[] = { &TCCR0A, &TCCR1A,&TCCR2A };
+	volatile uint8_t* timerMSK[] = {&TIMSK0, &TIMSK1,&TIMSK2 };
 
 	const uint16_t prescalers[] = { 1,8,64,256,1024 };
 	const uint8_t prescalerFlags[] = { _BV(CS0), _BV(CS1), _BV(CS0)|_BV(CS1), _BV(CS2), _BV(CS2)|_BV(CS0) };
@@ -37,42 +38,40 @@ namespace {
 Timer::Timer(uint8_t timer,uint32_t hz)
  : mTimerNum(timer), mHZ(hz), mpCB(0), mTCNT(0), mPrescaler(0), mpUserdata(0)
 {
-	mpIO = (TimerIOMap*)timerTCCRnA[mTimerNum];
-	timers[mTimerNum] = this;
+	setIOMap();
 
+	timers[mTimerNum] = this;
 	disable();
 	setupPrescalerAndTCNT();
 	setPrescaler();
-#if defined(__AVR_ATmega644P__) //sanguino
-	TIMSK = _BV(TOIE); //always on on sanguino because we use this for clock also
-#endif
+}
+
+void Timer::setIOMap()
+{
+	mpIO = (TimerIOMap*)timerTCCRnA[mTimerNum];
+	
 }
 
 void Timer::enable()
 {
-#if defined(__AVR_ATmega644P__) //sanguino
-	doCallback=true;
-#else
 	TIMSK = _BV(TOIE);
-#endif
 }
 
 void Timer::disable()
 {
-#if defined(__AVR_ATmega644P__) //sanguino
-	doCallback=false;
-#else	
 	TIMSK = 0;
-#endif
 }
 
 void Timer::reset()
 {
 //	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+	uint8_t s = SREG;
+	cli();
 	{
 		mpIO->TCNTH = mTCNT>>8;
 		mpIO->TCNTL = mTCNT;
 	}
+	SREG = s;
 }
 
 void Timer::setPrescaler()
@@ -97,13 +96,7 @@ void Timer::setupPrescalerAndTCNT()
 
 void Timer::doISR()
 {
-#if defined(__AVR_ATmega644P__) //sanguino
-	clock_callback();
-	
-	if (mpCB && doCallback)
-#else
 	if (mpCB)
-#endif
 		mpCB((void*)mpUserdata);
 		
 	mpIO->TCNTH = mTCNT>>8;
@@ -111,9 +104,73 @@ void Timer::doISR()
 }
 
 
+//----------------------------------------------------------
+//8 bit timer
+//----------------------------------------------------------
+Timer8::Timer8(uint8_t timer,uint32_t hz)
+ : Timer(timer,hz)
+{
+}
+
+void Timer8::setIOMap()
+{
+	mpIO8 = (TimerIOMap8*)timerTCCRnA[mTimerNum];
+}
+
+
+void Timer8::reset()
+{
+//	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+	uint8_t s = SREG;
+	cli();
+	{
+		mpIO8->TCNT = mTCNT;
+	}
+	SREG=s;
+}
+
+void Timer8::setPrescaler()
+{
+	mpIO8->TCCRB = prescalerFlags[mPrescaler];
+}
+
+
+void Timer8::setupPrescalerAndTCNT()
+{
+	for (int i=0;i<sizeof(prescalers)/sizeof(uint16_t);i++)
+	{
+		uint32_t t = F_CPU/prescalers[i]/mHZ;
+		if (t < 0xff)
+		{
+			mTCNT = 0xff-t;
+			mPrescaler = i;
+			return;
+		}
+	}
+}
+
+void Timer8::doISR()
+{
+	if (mpCB)
+		mpCB((void*)mpUserdata);
+		
+	mpIO8->TCNT = mTCNT;
+}
+
+//----------------------------------------
+ISR(TIMER0_OVF_vect)
+{
+	timers[0]->doISR();
+}
+
 ISR(TIMER1_OVF_vect)
 {
 	timers[1]->doISR();
+}
+
+ISR(TIMER2_OVF_vect)
+{
+	timers[2]->doISR();
 }
 
 #if defined(__AVR_ATmega1280__) //mega

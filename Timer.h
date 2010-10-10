@@ -23,6 +23,14 @@ struct TimerIOMap {
 	volatile uint8_t OCRCH;
 };
 
+struct TimerIOMap8 { //8 bit timer io map
+ 	volatile uint8_t TCCRA;
+	volatile uint8_t TCCRB;
+	volatile uint8_t TCNT;
+	volatile uint8_t OCRA;
+	volatile uint8_t OCRB;
+};
+
 
 //this is only for 16-bit timers
 class Timer
@@ -32,29 +40,53 @@ public:
 	
 	void enable();
 	void disable();
+	virtual void reset();
+	
+	void setFrequency(uint32_t hz);
+	void setCallback(TimerCallback cb,void* userData=0) { mpCB = cb; mpUserdata = userData; }
+	
+
+	virtual void doISR();
+	
+protected:
+	
+	virtual void setupPrescalerAndTCNT();
+	virtual void setPrescaler();
+	virtual void setIOMap();
+	
+	uint8_t mTimerNum;
+	uint32_t mHZ;
+	volatile uint16_t mTCNT;
+	uint8_t mPrescaler;
+	volatile void* mpUserdata;
+	volatile TimerCallback mpCB;
+	volatile TimerIOMap* mpIO;
+	
+};
+
+class Timer8 : public Timer
+{
+public:
+	Timer8(uint8_t timer,uint32_t hz);
+	
 	void reset();
 	
 	void setFrequency(uint32_t hz);
 	void setCallback(TimerCallback cb,void* userData=0) { mpCB = cb; mpUserdata = userData; }
 	
 
-	void doISR();
+	virtual void doISR();
 	
 protected:
 	
-	void setupPrescalerAndTCNT();
-	void setPrescaler();
+	virtual void setupPrescalerAndTCNT();
+	virtual void setPrescaler();
+	virtual void setIOMap();
 	
-	uint8_t mTimerNum;
-	uint32_t mHZ;
-	volatile uint16_t mTCNT;
-	uint8_t mPrescaler;
-	volatile bool doCallback;
-	volatile void* mpUserdata;
-	volatile TimerCallback mpCB;
-	volatile TimerIOMap* mpIO;
+	volatile TimerIOMap8* mpIO8;
 	
 };
+
 
 
 

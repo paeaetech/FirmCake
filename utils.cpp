@@ -10,8 +10,11 @@ UART uart3(3,57600);
 #endif
 
 namespace {
+#ifdef CLOCK_TIMER_8BIT
+	Timer8 clockTimer(CLOCK_TIMER,1000);
+#else
 	Timer clockTimer(CLOCK_TIMER,1000);
-
+#endif
 	volatile uint32_t curMillis;
 	
 	void clockCallback(void* udata)

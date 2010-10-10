@@ -35,7 +35,11 @@ namespace {
 	uint32_t stepDelay[3];
 	uint32_t currentStepTime[3];
 
+#ifdef STEPPER_TIMER_8BIT
+	Timer8 timer(STEPPER_TIMER,STEPPER_HZ);
+#else
 	Timer timer(STEPPER_TIMER,STEPPER_HZ);
+#endif
 }
 
 

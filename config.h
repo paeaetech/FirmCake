@@ -39,7 +39,6 @@
 #define HOST_TIMEOUT 1000
 #define SLAVE_TIMEOUT 1000
 
-#define CLOCK_TIMER 1
 
 
 #if MACHINE_TYPE == 1
@@ -128,8 +127,10 @@
 
 #elif MACHINE_TYPE == 0 //gen3 sanguino
 
+//	#define CLOCK_TIMER_8BIT
 	#define CLOCK_TIMER 1
-	#define STEPPER_TIMER 5
+	#define STEPPER_TIMER_8BIT
+	#define STEPPER_TIMER 0
 	#define NUM_UARTS 2
 	#define HOST_UART 0
 	
