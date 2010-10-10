@@ -134,7 +134,7 @@ void HostComm::processPacket()
 			{
 				uint16_t v = mPacket.get16();
 				DEBUG_OUTF("CMD_VERSION: %d.%d\r\n",v/100,v%100);
-				mReplyPacket.put16(202); //fake version to replicatorg
+				mReplyPacket.put16(303); //fake version to replicatorg
 				break;
 			}
 			case HOST_CMD_INIT:
@@ -191,7 +191,7 @@ void HostComm::processPacket()
 				if (!sendSlaveQuery())
 				{
 					mReplyPacket.reset();
-					mReplyPacket.setCommand(HOST_REPLY_UNSUPPORTED);
+					mReplyPacket.setCommand(HOST_REPLY_TIMEOUT);
 				}
 				break;
 			}
@@ -238,12 +238,11 @@ void HostComm::processPacket()
 			case HOST_CMD_ABORT:
 			case HOST_CMD_PAUSE:
 				break;
+#ifdef USE_SDCARD
 		  	case HOST_CMD_CAPTURE_TO_FILE:
 			case HOST_CMD_END_CAPTURE:
 		  	case HOST_CMD_PLAYBACK_CAPTURE:
-				break;
 			case HOST_CMD_NEXT_FILENAME:
-#ifdef USE_SDCARD
 			{
 				uint8_t reset = mPacket.get8();
 				if (reset)
