@@ -2,7 +2,6 @@
 #define STEPPERCONTROLLER_H_RTJFI7CF
 
 #include "config.h"
-#include "Stepper.h"
 #include "owntypes.h"
 #include "RingBuffer.h"
 

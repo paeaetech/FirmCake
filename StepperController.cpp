@@ -9,31 +9,102 @@
 
 #define MAX(x,y) x > y ? x : y
 #define MIN(x,y) x < y ? x : y
+#define ABS(x) (x < 0 ? -x : x)
 
 
 StepperController stepperController;
 
 namespace {
-	Stepper steppers[3] = {
-		Stepper(&STEPPERX_STEP_PORT,_BV(STEPPERX_STEP_PIN),
+	
+	struct STEPPER {
+		const volatile uint8_t * stepPort;
+		const volatile uint8_t stepPin;
+
+		const volatile uint8_t * dirPort;
+		const volatile uint8_t dirPin;
+
+		const volatile uint8_t * enPort;
+		const volatile uint8_t enPin;
+
+		const volatile uint8_t * minPort;
+		const volatile uint8_t minPin;
+
+		const volatile uint8_t * maxPort;
+		const volatile uint8_t maxPin;
+
+		bool bInverted;
+		volatile bool bDirectionPositive;
+
+		volatile int32_t currentStep;
+		volatile int32_t targetStep;
+		volatile int32_t deltaSteps;
+		volatile uint32_t stepDelay;
+		volatile uint32_t currentStepTime;
+	};
+	
+	volatile STEPPER steppers[3] = {
+		{
+			&STEPPERX_STEP_PORT,_BV(STEPPERX_STEP_PIN),
+			&STEPPERX_DIR_PORT,_BV(STEPPERX_DIR_PIN),
+			&STEPPERX_EN_PORT,_BV(STEPPERX_EN_PIN),
+			&STEPPERX_MIN_PORT,_BV(STEPPERX_MIN_PIN),
+			&STEPPERX_MAX_PORT,_BV(STEPPERX_MAX_PIN),
+			false,
+			false,
+			0,
+			0,
+			0,
+			0,
+			0,
+		},
+		{
+			&STEPPERY_STEP_PORT,_BV(STEPPERY_STEP_PIN),
+			&STEPPERY_DIR_PORT,_BV(STEPPERY_DIR_PIN),
+			&STEPPERY_EN_PORT,_BV(STEPPERY_EN_PIN),
+			&STEPPERY_MIN_PORT,_BV(STEPPERY_MIN_PIN),
+			&STEPPERY_MAX_PORT,_BV(STEPPERY_MAX_PIN),
+			false,
+			false,
+			0,
+			0,
+			0,
+			0,
+			0,
+		},
+		{
+			&STEPPERZ_DIR_PORT,_BV(STEPPERZ_DIR_PIN),
+			&STEPPERZ_EN_PORT,_BV(STEPPERZ_EN_PIN),
+			&STEPPERZ_MIN_PORT,_BV(STEPPERZ_MIN_PIN),
+			&STEPPERZ_MAX_PORT,_BV(STEPPERZ_MAX_PIN),
+			false,
+			false,
+			0,
+			0,
+			0,
+			0,
+			0,			
+		},
+	};
+/*		
+	volatile Stepper stepperX(&STEPPERX_STEP_PORT,_BV(STEPPERX_STEP_PIN),
 				&STEPPERX_DIR_PORT,_BV(STEPPERX_DIR_PIN),
 				&STEPPERX_EN_PORT,_BV(STEPPERX_EN_PIN),
 				&STEPPERX_MIN_PORT,_BV(STEPPERX_MIN_PIN),
-				&STEPPERX_MAX_PORT,_BV(STEPPERX_MAX_PIN)),
-		Stepper(&STEPPERY_STEP_PORT,_BV(STEPPERY_STEP_PIN),
+				&STEPPERX_MAX_PORT,_BV(STEPPERX_MAX_PIN));
+
+	volatile Stepper	stepperY(&STEPPERY_STEP_PORT,_BV(STEPPERY_STEP_PIN),
 				&STEPPERY_DIR_PORT,_BV(STEPPERY_DIR_PIN),
 				&STEPPERY_EN_PORT,_BV(STEPPERY_EN_PIN),
 				&STEPPERY_MIN_PORT,_BV(STEPPERY_MIN_PIN),
-				&STEPPERY_MAX_PORT,_BV(STEPPERY_MAX_PIN)),
-		Stepper(&STEPPERZ_STEP_PORT,_BV(STEPPERZ_STEP_PIN),
+				&STEPPERY_MAX_PORT,_BV(STEPPERY_MAX_PIN));
+	volatile Stepper	stepperZ(&STEPPERZ_STEP_PORT,_BV(STEPPERZ_STEP_PIN),
 				&STEPPERZ_DIR_PORT,_BV(STEPPERZ_DIR_PIN),
 				&STEPPERZ_EN_PORT,_BV(STEPPERZ_EN_PIN),
 				&STEPPERZ_MIN_PORT,_BV(STEPPERZ_MIN_PIN),
-				&STEPPERZ_MAX_PORT,_BV(STEPPERZ_MAX_PIN)),
-	};
-	
-	volatile uint32_t stepDelay[3];
-	volatile uint32_t currentStepTime[3];
+				&STEPPERZ_MAX_PORT,_BV(STEPPERZ_MAX_PIN));
+
+	Stepper* steppers[3] = { (Stepper*)&stepperX, (Stepper*)&stepperY, (Stepper*)&stepperZ };
+*/
 
 #ifdef STEPPER_TIMER_8BIT
 	Timer8 timer(STEPPER_TIMER,STEPPER_HZ);
@@ -51,16 +122,16 @@ StepperController::StepperController()
 
 void StepperController::getPoint(Point& rPoint)
 {
-	rPoint.x = steppers[0].getCurrentStep();
-	rPoint.y = steppers[1].getCurrentStep();
-	rPoint.z = steppers[2].getCurrentStep();
+	rPoint.x = steppers[0].currentStep;
+	rPoint.y = steppers[1].currentStep;
+	rPoint.z = steppers[2].currentStep;
 }
 
 bool StepperController::isMoving()
 {
 	bool ret = false;
 	for (int i=0;i<3;i++)
-		ret |= steppers[i].needStepping();
+		ret |= steppers[i].currentStep != steppers[i].targetStep;
 	
 	return ret;
 }
@@ -68,55 +139,66 @@ bool StepperController::isMoving()
 void StepperController::disableSteppers(bool x,bool y,bool z)
 {
 	if (x)
-		steppers[0].disable();
+		PORTP(steppers[0].enPort) &= ~steppers[0].enPin;
 	if (y)
-		steppers[1].disable();
+		PORTP(steppers[1].enPort) &= ~steppers[1].enPin;
 	if (z)
-		steppers[2].disable();
+		PORTP(steppers[2].enPort) &= ~steppers[2].enPin;
 
 }
 
 void StepperController::enableSteppers(bool x, bool y, bool z)
 {
 	if (x)
-		steppers[0].enable();
+		PORTP(steppers[0].enPort) |= steppers[0].enPin;
 	if (y)
-		steppers[1].enable();
+		PORTP(steppers[1].enPort) |= steppers[1].enPin;
 	if (z)
-		steppers[2].enable();
+		PORTP(steppers[2].enPort) |= steppers[2].enPin;
 }
 
 
 void StepperController::setPoint(int32_t x,int32_t y,int32_t z)
 {
-	steppers[0].setCurrentStep(x);
-	steppers[1].setCurrentStep(y);
-	steppers[2].setCurrentStep(z);
+	steppers[0].currentStep=x;
+	steppers[1].currentStep=y;
+	steppers[2].currentStep=z;
+	
 
 }
 
 void StepperController::moveTo(int32_t x,int32_t y,int32_t z,int32_t feedRate)
 {
-	DEBUG_OUTF("moveTo %d %d %d %d\r\n",x,y,z,feedRate);
-	steppers[0].setTargetStep(x);
-	steppers[1].setTargetStep(y);
-	steppers[2].setTargetStep(z);
 	
 	uint32_t moveTime;
 	uint8_t i;
 	
 	for (i=0;i<3;i++)
 	{
-		moveTime = MAX(moveTime,steppers[i].getDeltaSteps() / feedRate);
+		steppers[i].targetStep = x;
+		int32_t deltaSteps = x - steppers[i].currentStep;
+		steppers[i].bDirectionPositive = deltaSteps >= 0;
+		steppers[i].deltaSteps = ABS(deltaSteps);
+
+		if (steppers[i].deltaSteps > 0)
+		{
+			PORTP(steppers[i].enPort) |= steppers[i].enPin;
+			
+			if (steppers[i].bDirectionPositive)
+				PORTP(steppers[i].dirPort) |= steppers[i].dirPin;
+			else
+				PORTP(steppers[i].dirPort) &= ~steppers[i].dirPin;
+				
+		}
+		moveTime = MAX(moveTime,steppers[i].deltaSteps / feedRate);
 	}
-	DEBUG_OUTF("movetime %d\r\n",moveTime);
+	
 	for (i=0;i<3;i++)
 	{
-		if (steppers[i].needStepping())
+		if (steppers[i].deltaSteps > 0)
 		{
-			stepDelay[i] = STEPPER_HZ / (steppers[i].getDeltaSteps() / moveTime);
-			currentStepTime[i] = stepDelay[i];
-			DEBUG_OUTF("stepdelay[%d]: %d\r\n",i,stepDelay[i]);
+			steppers[i].stepDelay = STEPPER_HZ / (steppers[i].deltaSteps / moveTime);
+			steppers[i].currentStepTime = steppers[i].stepDelay;
 		}
 	}
 	
@@ -132,16 +214,16 @@ void StepperController::update()
 	if (mbMoving)
 	{
 #ifdef STEPPERX_DISABLE_INACTIVE
-		if (!steppers[0].needStepping())
-			steppers[0].disable();
+		if (!steppers[0].deltaSteps)
+			PORTP(steppers[0].enPort) &= ~steppers[0].enPin;
 #endif
 #ifdef STEPPERY_DISABLE_INACTIVE
-		if (!steppers[1].needStepping())
-			steppers[1].disable();
+		if (!steppers[1].deltaSteps)
+			PORTP(steppers[1].enPort) &= ~steppers[1].enPin;
 #endif
 #ifdef STEPPERZ_DISABLE_INACTIVE
-		if (!steppers[2].needStepping())
-			steppers[2].disable();
+		if (!steppers[2].deltaSteps)
+			PORTP(steppers[2].enPort) &= ~steppers[2].enPin;
 #endif
 
 		mbMoving = isMoving();
@@ -154,12 +236,41 @@ void StepperController::doISR()
 {
 	//HACK: move z axis first if it needs to be moved to the head does not try to go through the object
 	//essentially the host software should split the move into two commands, move z first and move xy after
-	if (steppers[3].needStepping())
+	if (steppers[3].deltaSteps > 0)
+	{
+		steppers[3].currentStepTime--;
+		if (!steppers[3].currentStepTime)
+		{
+			PORTP(steppers[3].stepPort) |= steppers[3].stepPin;
+			PORTP(steppers[3].stepPort) &= ~steppers[3].stepPin;
+			steppers[3].currentStepTime = steppers[3].stepDelay;
+			steppers[3].deltaSteps--;
+			steppers[3].currentStep += steppers[3].bDirectionPositive ? 1 : -1;
+		}
+	}
+	else
+	{
+		for (int i=0;i<2;i++)
+		{
+			steppers[i].currentStepTime--;
+			if (!steppers[i].currentStepTime)
+			{
+				PORTP(steppers[i].stepPort) |= steppers[i].stepPin;
+				PORTP(steppers[i].stepPort) &= ~steppers[i].stepPin;
+				steppers[i].currentStepTime = steppers[i].stepDelay;
+				steppers[i].deltaSteps--;
+				steppers[i].currentStep += steppers[i].bDirectionPositive ? 1 : -1;
+			}
+
+		}
+	}
+/*
+	if (steppers[3]->needStepping())
 	{
 		currentStepTime[3]--;
 		if (currentStepTime[3] == 0)
 		{
-			steppers[3].doStep();
+			steppers[3]->doStep();
 			currentStepTime[3] = stepDelay[3];
 		}
 	}
@@ -167,17 +278,18 @@ void StepperController::doISR()
 	{
 		for (int i=0;i<2;i++)
 		{
-			if (steppers[i].needStepping())
+			if (steppers[i]->needStepping())
 			{
 				currentStepTime[i]--;
 				if (currentStepTime[i] == 0)
 				{
-					steppers[i].doStep();
+					steppers[i]->doStep();
 					currentStepTime[i] = stepDelay[i];
 				}
 			}
 		}
 	}
+*/
 #if 0
 	for (uint8_t i=0;i<3;i++)
 	{
