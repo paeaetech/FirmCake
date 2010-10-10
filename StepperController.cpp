@@ -3,7 +3,7 @@
 #include "StepperController.h"
 #include "config.h"
 #include "Timer.h"
-
+#include "utils.h"
 
 #define STEPPER_HZ 100000
 
@@ -32,8 +32,8 @@ namespace {
 				&STEPPERZ_MAX_PORT,_BV(STEPPERZ_MAX_PIN)),
 	};
 	
-	uint32_t stepDelay[3];
-	uint32_t currentStepTime[3];
+	volatile uint32_t stepDelay[3];
+	volatile uint32_t currentStepTime[3];
 
 #ifdef STEPPER_TIMER_8BIT
 	Timer8 timer(STEPPER_TIMER,STEPPER_HZ);
@@ -97,21 +97,27 @@ void StepperController::setPoint(int32_t x,int32_t y,int32_t z)
 
 void StepperController::moveTo(int32_t x,int32_t y,int32_t z,int32_t feedRate)
 {
+	DEBUG_OUTF("moveTo %d %d %d %d\r\n",x,y,z,feedRate);
 	steppers[0].setTargetStep(x);
 	steppers[1].setTargetStep(y);
 	steppers[2].setTargetStep(z);
 	
-	uint32_t moveTime=0;
+	uint32_t moveTime;
 	uint8_t i;
+	
 	for (i=0;i<3;i++)
 	{
 		moveTime = MAX(moveTime,steppers[i].getDeltaSteps() / feedRate);
 	}
-	
+	DEBUG_OUTF("movetime %d\r\n",moveTime);
 	for (i=0;i<3;i++)
 	{
-		stepDelay[i] = STEPPER_HZ / (steppers[i].getDeltaSteps() / moveTime);
-		currentStepTime[i] = stepDelay[i];
+		if (steppers[i].needStepping())
+		{
+			stepDelay[i] = STEPPER_HZ / (steppers[i].getDeltaSteps() / moveTime);
+			currentStepTime[i] = stepDelay[i];
+			DEBUG_OUTF("stepdelay[%d]: %d\r\n",i,stepDelay[i]);
+		}
 	}
 	
 	mbMoving = isMoving();
@@ -147,7 +153,7 @@ void StepperController::update()
 void StepperController::doISR()
 {
 	//HACK: move z axis first if it needs to be moved to the head does not try to go through the object
-	//essentially the host software should split the move into two commands, move z and move xy after
+	//essentially the host software should split the move into two commands, move z first and move xy after
 	if (steppers[3].needStepping())
 	{
 		currentStepTime[3]--;

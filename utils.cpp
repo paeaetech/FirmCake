@@ -23,6 +23,31 @@ namespace {
 	}
 }
 
+uint32_t led_activity;
+
+void led_activity_on()
+{
+	led_activity=millis();
+	_LED_ON();
+}
+
+void led_activity_off()
+{
+	led_activity=millis();
+	_LED_OFF();
+}
+
+void led_update()
+{
+	if (millis() > led_activity+2000)
+	{
+		if (millis() % 5000 < 500)
+			_LED_ON();
+		else
+			_LED_OFF();
+	}
+}
+
 void clock_callback()
 {
 	curMillis++;

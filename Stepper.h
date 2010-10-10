@@ -56,9 +56,9 @@ protected:
 	bool mbInverted;
 	bool mbDirectionPositive;
 	
-	int32_t mCurrentStep;
-	int32_t mTargetStep;
-	int32_t mDeltaSteps;
+	volatile int32_t mCurrentStep;
+	volatile int32_t mTargetStep;
+	volatile int32_t mDeltaSteps;
 
 }; 
 

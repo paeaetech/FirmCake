@@ -44,7 +44,7 @@ void setup()
 	
 	clock_init();
 
-	fpinit();
+//	fpinit();
 
 	LED_ON();
 #ifdef USE_SDCARD
@@ -52,11 +52,12 @@ void setup()
 #endif
 	
 	initSystem();
-	if (!eepromConfigValid())
+/*	if (!eepromConfigValid())
 	{
 		eepromWriteDefaults();
 	}
-/*	
+	*/
+/*
 	uint8_t b;
 	uint8_t p=0;
 	while((b=pgm_read_byte(FIRMWARE_NAME+p)))
@@ -77,7 +78,8 @@ void setup()
 
 void loop()
 {
-
+	led_update();
+	
 	hostComm.update();
 
 	switch(mainState)

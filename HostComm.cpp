@@ -124,7 +124,10 @@ void HostComm::processPacket()
 				mCommandBuffer.put(mPacket.get8());
 		}
 		else
+		{
 			sendReply(HOST_REPLY_BUFFER_OVERFLOW);
+			return;
+		}
 	}
 	else
 	{
@@ -280,8 +283,7 @@ void HostComm::processCommandBuffer()
 {
 	if (mCommandBuffer.available())
 	{
-	 	HostCommand cmd = (HostCommand)mCommandBuffer.get();
-		
+	 	HostCommand cmd = (HostCommand)mCommandBuffer.get8();
 		switch(cmd)
 		{
 			case HOST_CMD_QUEUE_POINT_ABS:
@@ -291,8 +293,9 @@ void HostComm::processCommandBuffer()
 					int32_t x = (int32_t)mCommandBuffer.get32();
 			        int32_t y = (int32_t)mCommandBuffer.get32();
 			        int32_t z = (int32_t)mCommandBuffer.get32();
-			        uint32_t feedRate = mCommandBuffer.get32();
-					DEBUG_OUTF("HOST_CMD_QUEUE_POINT_ABS %f %f %f %f\r\n",x,y,z,feedRate);
+			        int32_t feedRate = (int32_t)mCommandBuffer.get32();
+						
+					DEBUG_OUTF("HOST_CMD_QUEUE_POINT_ABS %x %x %x %x\r\n",x,y,z,feedRate);
 
 					stepperController.moveTo(x,y,z,feedRate);
 				}
@@ -307,7 +310,7 @@ void HostComm::processCommandBuffer()
 					int32_t x = (int32_t)mCommandBuffer.get32();
 			        int32_t y = (int32_t)mCommandBuffer.get32();
 			        int32_t z = (int32_t)mCommandBuffer.get32();
-					DEBUG_OUTF("HOST_CMD_SET_POSITION %f %f %f\r\n",x,y,z);
+					DEBUG_OUTF("HOST_CMD_SET_POSITION %d %d %d\r\n",x,y,z);
 
 					stepperController.setPoint(x,y,z);
 				}
@@ -364,6 +367,7 @@ void HostComm::processCommandBuffer()
 				        mSlavePacket.put8(mCommandBuffer.get());
 				}
 				sendSlaveQuery();
+				break;
 			}
 			case HOST_CMD_ENABLE_AXES:
 			{
@@ -374,7 +378,7 @@ void HostComm::processCommandBuffer()
 					bool y = axes & _BV(2);
 					bool z = axes & _BV(3);
 					bool enable = axes & 0x80;
-					DEBUG_OUTF("HOST_CMD_ENABLE_AXES %s %s%s%s\r\n",enable ? "enable" : "disable",x ? "X":"",y ? "y" : "",z ? "z" : "");
+					DEBUG_OUTF("HOST_CMD_ENABLE_AXES %s %s%s%s\r\n",enable ? "enable" : "disable",x ? "x":"",y ? "y" : "",z ? "z" : "");
 					if (enable)
 						stepperController.enableSteppers(x,y,z);
 					else
@@ -385,9 +389,9 @@ void HostComm::processCommandBuffer()
 				break;
 			}
 			default:
+				DEBUG_OUTF("INVALID cmdbuffer command %d\r\n", cmd);
 				break;
-		}
-		
+		}		
 	}
 }
 
@@ -396,6 +400,7 @@ void HostComm::sendReply()
 {
 	LED_ON();
 	DEBUG_OUTF("Sending reply code %d\r\n",mReplyPacket.getCommand());
+
 	uint8_t crc=_crc_ibutton_update(0,mReplyPacket.getCommand());
 	uart0.send(PACKET_START_BYTE);
 	uart0.send(mReplyPacket.getBytesRemaining()+1);

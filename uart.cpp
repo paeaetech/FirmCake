@@ -101,10 +101,7 @@ UART::UART(uint8_t uartNum,uint16_t baudRate)
 	UBRRnL = ubrr;
 	UCSRnB = _BV(RXEN) | _BV(TXEN) | _BV(RXCIE);
 	UCSRnC = _BV(UCSZ1) | _BV(UCSZ0);
-	
-	//set tx pin as output
-	*portDDR[uartNum] |= portTxPin[uartNum];
-	
+		
 }
 
 void UART::send(uint8_t b)

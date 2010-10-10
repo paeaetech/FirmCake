@@ -23,7 +23,7 @@
 #endif
 
 //#define DEBUG
-//#define DEBUG_FAKE_SLAVE
+#define DEBUG_FAKE_SLAVE
 
 //0 = sanguino3g
 //1 = gcode
@@ -49,7 +49,7 @@
 	#define HOST_UART 0
 	//feature definitions
 	#define USE_SDCARD
-	#define USE_LCD
+//	#define USE_LCD
 	#define USE_PSU
 	
 
@@ -155,6 +155,9 @@
 
 
 	#define STEPPER_TYPE STEPPER_TYPE_GEN3
+	#if STEPPER_TYPE == STEPPER_TYPE_MICROSTEP
+		#define STEPPER_MICROSTEPS 16
+	#endif
 
 	//#define STEPPERX_DISABLE_INACTIVE
 	//#define STEPPERY_DISABLE_INACTIVE
@@ -201,10 +204,6 @@
 	#define SDCARD_DETECT_PIN PB3
 	#define SDCARD_SELECT_PORT PORTB
 	#define SDCARD_SELECT_PIN PB4
-	#endif
-
-	#ifdef USE_LCD
-	#define LCD_UART 2
 	#endif
 
 
