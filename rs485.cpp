@@ -22,7 +22,7 @@ void RS485::start()
 
 void RS485::end()
 {
-	while(UCSRnA & _BV(TXC0)) {}
+	while(!(UCSRnA & _BV(TXC0))) {}
 	UCSRnA |= _BV(TXC0);
 	
 	PORT(RS485_PORT_OE) &= ~_BV(RS485_PIN_OE);
